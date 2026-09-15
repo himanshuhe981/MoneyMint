@@ -1,0 +1,24 @@
+---
+description: Comment only when it helps explain code in interviews
+alwaysApply: true
+---
+
+# Comments
+
+Default: no comments.
+
+Add a comment only if it would help in a viva / interview, for example:
+- why BRE is on the server, not the client
+- why a status can only move APPLIED -> SANCTIONED
+- a non-obvious formula or validation (PAN regex, SI formula, unique UTR)
+
+How to write them:
+- 1–2 lines, like you typed it yourself while coding
+- simple words, slightly informal is fine
+- explain why, not what the next line already shows
+
+Don't:
+- comment every function or type
+- write pretty banners, JSDoc walls, or “this function does X”
+- use AI phrasing (“ensures robust validation”, “leverages”, “seamless”)
+---

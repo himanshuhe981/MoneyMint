@@ -1,0 +1,42 @@
+---
+description: Feature branches, PRs, merge flow, and commit message style
+alwaysApply: true
+---
+
+# Git workflow
+
+Never commit feature work straight to `main`.
+
+For every new feature or fix:
+
+1. Create a fresh branch from latest `main`.
+   - Features: `feat/short-name`
+   - Fixes: `fix/short-name`
+2. Make commits only on that branch.
+3. Push the branch, open a PR into `main`.
+4. Merge the PR after it is opened (squash merge unless asked otherwise).
+5. Delete the branch after merge.
+
+PR title: short, like a student writing for a teacher. One line.
+
+PR body: 2–4 short lines. What changed and why. No buzzwords, no emoji, no “summary / test plan” fluff unless the user asked for a GitHub template fill.
+
+# Commit messages
+
+Write like a final year college student: clear, a bit casual, still professional.
+
+Do:
+- One short sentence (or two max)
+- Say what you actually did
+- Lowercase is fine
+
+Don't:
+- Sound like ChatGPT (“implemented a robust solution”, “enhances maintainability”)
+- Use conventional-commit prefixes (`feat:`, `chore:`) unless the user asks
+- Write an essay or bullet novel
+
+Examples:
+- `added signup and login apis with jwt`
+- `fixed pan regex failing on lowercase input`
+- `wired disbursement page to mark loan as disbursed`
+---
