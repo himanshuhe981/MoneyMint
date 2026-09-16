@@ -129,12 +129,16 @@ export const uploadSalarySlip = async (req: Request, res: Response) => {
     const s3Key = `s3://${s3BucketName}/${key}`
     const profile = await borrowerService.updateSalarySlip(userId, s3Key)
 
+    // Send the presigned URL inside the profile object so the frontend can use it immediately without refreshing
+    const profileObj = profile.toObject ? profile.toObject() : { ...profile }
+    profileObj.salarySlipUrl = signedUrl
+
     res.status(200).json({
       message: 'Salary slip uploaded successfully',
       uploadedTo: 's3',
       key,
       salarySlipUrl: signedUrl,
-      profile,
+      profile: profileObj,
     })
   } catch (err: any) {
     res.status(400).json({ message: err.message || 'Upload failed' })
