@@ -15,13 +15,13 @@
 <!-- Demo video will be added here once recorded -->
 <!-- [![MoneyMint Demo](thumbnail.png)](YOUR_VIDEO_LINK_HERE) -->
 
-MoneyMint is a full-stack Loan Management System designed to handle end-to-end institutional lending. I built it with a modern Borrower Portal for loan applications and a highly secure Operations Dashboard for internal executives to manage leads, sanction loans, disburse capital, and track repayments.
+MoneyMint is a full-stack Loan Management System designed to handle end-to-end institutional lending. It features a modern Borrower Portal for loan applications and a highly secure Operations Dashboard for internal executives to manage leads, sanction loans, disburse capital, and track repayments.
 
 ---
 
 ## Seed Script & Evaluator Credentials
 
-To evaluate the role-based dashboard, you do not need to manually register multiple accounts. I have included a database seed script that injects test credentials for every role.
+To evaluate the role-based dashboard, there is no need to manually register multiple accounts. A database seed script is included to inject test credentials for every role.
 
 ```bash
 # Run this from the root directory or inside apps/api
@@ -43,7 +43,7 @@ You can log into the live project using these pre-seeded accounts:
 
 ## High-Level Architecture & AWS Integration
 
-One of my critical design decisions in MoneyMint is how sensitive borrower documents are handled. Storing binary files (like PDFs) in MongoDB is an anti-pattern and degrades database performance. Instead, I implemented a highly secure AWS S3 architecture.
+A critical design decision in MoneyMint is how sensitive borrower documents are handled. Storing binary files (like PDFs) in MongoDB is an anti-pattern and degrades database performance. Instead, a highly secure AWS S3 architecture is implemented.
 
 ```mermaid
 flowchart LR
@@ -57,13 +57,13 @@ flowchart LR
 	H --> I[Sanction team gets a fresh signed URL on each dashboard fetch]
 ```
 
-**Design Choice:** By storing only the `s3://` URI string in MongoDB, my database remains lightweight and highly performant. By generating pre-signed URLs dynamically whenever a Sanction Executive views a profile, I guarantee that the bucket can remain completely private. No files are exposed to the public internet.
+**Design Choice:** By storing only the `s3://` URI string in MongoDB, the database remains lightweight and highly performant. Generating pre-signed URLs dynamically whenever a Sanction Executive views a profile guarantees that the bucket remains completely private. No files are exposed to the public internet.
 
 ---
 
 ## Database Schema & Relationships
 
-I designed a relational approach within MongoDB to keep data normalized across the lifecycle of a loan. 
+A relational approach is used within MongoDB to keep data normalized across the lifecycle of a loan. 
 
 ```mermaid
 erDiagram
@@ -150,7 +150,7 @@ MoneyMint LMS is a monorepo containing two main applications:
 
 The frontend uses a highly modular fetch wrapper in [apps/web/app/lib/api.ts](apps/web/app/lib/api.ts).
 
-That file reads `NEXT_PUBLIC_API_URL` from the environment. If it is not set, it falls back to my deployed Render backend URL. The wrapper dynamically appends the route path used by the app, such as `/auth/signin` or `/borrower/profile`.
+That file reads `NEXT_PUBLIC_API_URL` from the environment. If it is not set, it falls back to the deployed Render backend URL. The wrapper dynamically appends the route path used by the app, such as `/auth/signin` or `/borrower/profile`.
 
 The wrapper actively:
 - Attaches the JWT token from `localStorage` as an `Authorization: Bearer` header.
@@ -222,7 +222,7 @@ All dashboard routes require authentication and explicit role-based middleware g
 
 ## Detailed Salary Slip Upload Flow
 
-The document ingestion engine is heavily optimized. Here is my exact implementation flow:
+The document ingestion engine is heavily optimized. Here is the implementation flow:
 
 1. **Frontend Transmission:** The borrower uploads a file (PDF/JPG/PNG). The frontend forms a `FormData` payload and submits it under `salarySlip`.
 2. **Middleware Interception:** The backend utilizes [upload.middleware.ts](apps/api/src/middlewares/upload.middleware.ts) to intercept the payload using Multer. It rejects unsupported MIME types and enforces a strict 5 MB file size limit, retaining the valid file purely in memory.
@@ -234,14 +234,14 @@ The document ingestion engine is heavily optimized. Here is my exact implementat
 
 ## Frontend Portals
 
-I built the frontend entirely within Next.js, broken into two distinct portals: Borrower and Executive.
+The frontend is built entirely within Next.js, broken into two distinct portals: Borrower and Executive.
 
 ### Landing, Login, and Signup
 - **`/`**: Public home page featuring marketing copy and a dynamic Simple Interest loan estimator.
 - **`/login`** & **`/signup`**: Authentication gates that route users based on role (`/apply` for Borrowers, `/dashboard` for Executives).
 
 ### Borrower Journey
-- **`/apply`**: Collects KYC fields (Full Name, PAN, DOB, Salary, Employment). Submitting triggers my Business Rule Engine (BRE) which requires minimum age and salary thresholds.
+- **`/apply`**: Collects KYC fields (Full Name, PAN, DOB, Salary, Employment). Submitting triggers the Business Rule Engine (BRE) which requires minimum age and salary thresholds.
 - **`/apply/salary-slip`**: The file upload gateway (only accessible if BRE passes).
 - **`/apply/loan`**: The loan configuration engine allowing dynamic slider-based principal selection up to ₹5,00,000.
 - **`/apply/status`**: The real-time tracking interface for submitted applications.
@@ -314,7 +314,7 @@ The Express backend is deployed on Render as a Web Service.
 
 ## Summary In Simple Terms
 
-If you need the shortest possible explanation of my system:
+If you need the shortest possible explanation of the system:
 
 1. The frontend securely communicates with the backend via a universal API interceptor.
 2. The backend intercepts every request, verifying authentication tokens and strict role permissions.
