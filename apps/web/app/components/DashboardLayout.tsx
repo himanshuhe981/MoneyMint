@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import Navbar from './Navbar'
 import Sidebar from './Sidebar'
-import styles from './DashboardLayout.module.css'
+import LoadingSpinner from './LoadingSpinner'
 
 const DASHBOARD_ROLES = ['ADMIN', 'SALES', 'SANCTION', 'DISBURSEMENT', 'COLLECTION']
 
@@ -23,8 +23,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (isLoading) {
     return (
-      <div className={styles.loading}>
-        <div className={styles.spinner} />
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <LoadingSpinner size={48} />
       </div>
     )
   }
@@ -32,14 +32,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (!user || !DASHBOARD_ROLES.includes(user.role)) return null
 
   return (
-    <>
+    <div className="min-h-screen bg-[#fafafa] flex flex-col font-sans selection:bg-accent selection:text-black">
       <Navbar />
-      <div className={styles.layout}>
+      <div className="flex flex-col md:flex-row flex-1 pt-[72px]">
         <Sidebar />
-        <main className={styles.main}>
-          {children}
+        <main className="flex-1 p-4 sm:p-6 lg:p-10 overflow-x-hidden md:border-l border-black/10 bg-white">
+          <div className="max-w-7xl mx-auto">
+            {children}
+          </div>
         </main>
       </div>
-    </>
+    </div>
   )
 }

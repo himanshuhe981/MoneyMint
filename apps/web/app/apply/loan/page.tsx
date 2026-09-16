@@ -67,104 +67,120 @@ export default function LoanConfigPage() {
   }
 
   return (
-    <div className="animate-fade-in">
-      <div className="page-header">
-        <h1>Configure Loan</h1>
-        <p>Select your desired loan amount and repayment tenure.</p>
+    <div className="animate-[fadeIn_0.3s_ease-out]">
+      <div className="mb-10 text-center">
+        <h1 className="text-3xl font-serif font-bold tracking-tight text-black mb-3">Configure Loan</h1>
+        <p className="text-sm font-medium text-text-secondary">Select your desired loan amount and repayment tenure.</p>
       </div>
 
-      <div className="card flex flex-col gap-8">
+      <div className="card max-w-2xl mx-auto flex flex-col gap-8 shadow-[8px_8px_0px_rgba(0,0,0,1)]">
         {/* Sliders */}
-        <div className="flex flex-col gap-6">
-          <div className="form-group">
-            <div className="flex justify-between items-center mb-1">
-              <label className="form-label" htmlFor="amount-slider">Loan Amount</label>
-              <span className="font-semibold text-accent" style={{ fontSize: 'var(--text-lg)' }}>
-                ₹{loanAmount.toLocaleString('en-IN')}
-              </span>
+        <div className="flex flex-col gap-8">
+          <div>
+            <div className="flex justify-between items-end mb-4">
+              <label className="text-[10px] font-bold tracking-widest uppercase text-text-secondary" htmlFor="amount-input">Loan Amount (₹)</label>
+              <input
+                id="amount-input"
+                type="number"
+                min="50000"
+                max="500000"
+                step="10000"
+                value={loanAmount}
+                onChange={(e) => setLoanAmount(Number(e.target.value))}
+                disabled={submitting}
+                className="w-40 text-right font-serif text-2xl font-bold bg-[#fafafa] border border-black/20 focus:border-black focus:ring-1 focus:ring-black transition-all py-1 px-3"
+              />
             </div>
-            <input
-              id="amount-slider"
-              type="range"
-              min="50000"
-              max="500000"
-              step="10000"
-              value={loanAmount}
-              onChange={(e) => setLoanAmount(Number(e.target.value))}
-              disabled={submitting}
-            />
-            <div className="flex justify-between text-xs text-muted">
-              <span>Min: ₹50,000</span>
-              <span>Max: ₹5,00,000</span>
+            <div className="relative py-2">
+              <input
+                id="amount-slider"
+                type="range"
+                min="50000"
+                max="500000"
+                step="10000"
+                value={loanAmount}
+                onChange={(e) => setLoanAmount(Number(e.target.value))}
+                disabled={submitting}
+                className="w-full h-1 bg-black/10 appearance-none cursor-pointer outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-black [&::-webkit-slider-thumb]:rounded-none [&::-webkit-slider-thumb]:transition-transform hover:[&::-webkit-slider-thumb]:scale-125"
+              />
+              <div className="flex justify-between text-[10px] font-bold tracking-widest uppercase text-text-secondary mt-3">
+                <span>Min: ₹50,000</span>
+                <span>Max: ₹5,00,000</span>
+              </div>
             </div>
           </div>
 
-          <div className="form-group">
-            <div className="flex justify-between items-center mb-1">
-              <label className="form-label" htmlFor="tenure-slider">Repayment Tenure</label>
-              <span className="font-semibold text-accent" style={{ fontSize: 'var(--text-lg)' }}>
-                {tenure} Days
-              </span>
+          <div>
+            <div className="flex justify-between items-end mb-4">
+              <label className="text-[10px] font-bold tracking-widest uppercase text-text-secondary" htmlFor="tenure-input">Repayment Tenure (Days)</label>
+              <input
+                id="tenure-input"
+                type="number"
+                min="30"
+                max="365"
+                step="1"
+                value={tenure}
+                onChange={(e) => setTenure(Number(e.target.value))}
+                disabled={submitting}
+                className="w-32 text-right font-serif text-2xl font-bold bg-[#fafafa] border border-black/20 focus:border-black focus:ring-1 focus:ring-black transition-all py-1 px-3"
+              />
             </div>
-            <input
-              id="tenure-slider"
-              type="range"
-              min="30"
-              max="365"
-              step="1"
-              value={tenure}
-              onChange={(e) => setTenure(Number(e.target.value))}
-              disabled={submitting}
-            />
-            <div className="flex justify-between text-xs text-muted">
-              <span>Min: 30 days</span>
-              <span>Max: 365 days</span>
+            <div className="relative py-2">
+              <input
+                id="tenure-slider"
+                type="range"
+                min="30"
+                max="365"
+                step="1"
+                value={tenure}
+                onChange={(e) => setTenure(Number(e.target.value))}
+                disabled={submitting}
+                className="w-full h-1 bg-black/10 appearance-none cursor-pointer outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-black [&::-webkit-slider-thumb]:rounded-none [&::-webkit-slider-thumb]:transition-transform hover:[&::-webkit-slider-thumb]:scale-125"
+              />
+              <div className="flex justify-between text-[10px] font-bold tracking-widest uppercase text-text-secondary mt-3">
+                <span>Min: 30 days</span>
+                <span>Max: 365 days</span>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Calculation Panel */}
-        <div
-          style={{
-            background: 'var(--color-bg)',
-            border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-md)',
-            padding: 'var(--space-5)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 'var(--space-3)'
-          }}
-        >
-          <div className="font-semibold text-sm mb-2" style={{ borderBottom: '1px solid var(--color-border-light)', paddingBottom: 'var(--space-2)' }}>
+        <div className="bg-[#fafafa] border border-black/10 p-6">
+          <div className="font-bold text-[10px] tracking-widest uppercase text-text-secondary mb-4 pb-2 border-b border-black/10">
             LOAN SUMMARY
           </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-muted">Principal Amount</span>
-            <span className="font-medium">₹{loanAmount.toLocaleString('en-IN')}</span>
+          <div className="flex flex-col gap-3">
+            <div className="flex justify-between text-sm">
+              <span className="font-medium text-text-secondary">Principal Amount</span>
+              <span className="font-bold">₹{loanAmount.toLocaleString('en-IN')}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="font-medium text-text-secondary">Interest Rate</span>
+              <span className="font-bold">{interestRate}% p.a. (Fixed)</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="font-medium text-text-secondary">Tenure Period</span>
+              <span className="font-bold">{tenure} Days</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="font-medium text-text-secondary">Calculated Interest</span>
+              <span className="font-bold">₹{simpleInterest.toLocaleString('en-IN')}</span>
+            </div>
           </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-muted">Interest Rate</span>
-            <span className="font-medium">{interestRate}% p.a. (Fixed)</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-muted">Tenure Period</span>
-            <span className="font-medium">{tenure} Days</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-muted">Calculated Interest</span>
-            <span className="font-medium text-accent">₹{simpleInterest.toLocaleString('en-IN')}</span>
-          </div>
-          <div className="divider" style={{ margin: 'var(--space-2) 0' }} />
-          <div className="flex justify-between" style={{ fontSize: 'var(--text-base)', fontWeight: 'var(--weight-semibold)' }}>
-            <span>Total Repayment</span>
-            <span>₹{totalRepayment.toLocaleString('en-IN')}</span>
+          
+          <div className="my-4 border-t border-black/10"></div>
+          
+          <div className="flex justify-between items-center">
+            <span className="font-bold text-sm uppercase tracking-widest text-text-secondary">Total Repayment</span>
+            <span className="font-serif text-2xl font-bold">₹{totalRepayment.toLocaleString('en-IN')}</span>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="flex justify-between mt-4" style={{ borderTop: '1px solid var(--color-border-light)', paddingTop: 'var(--space-6)' }}>
+        <div className="flex justify-between mt-4 pt-6 border-t border-black/10">
           <button
-            className="btn btn-ghost"
+            className="btn btn-ghost text-xs px-6 py-3 font-bold uppercase tracking-widest border border-black/20"
             onClick={() => router.push('/apply/salary-slip')}
             disabled={submitting}
           >
@@ -172,7 +188,7 @@ export default function LoanConfigPage() {
           </button>
           
           <button
-            className="btn btn-primary"
+            className="btn btn-primary text-xs px-8 py-3 font-bold uppercase tracking-widest shadow-[4px_4px_0px_rgba(196,240,39,1)]"
             onClick={handleApply}
             disabled={submitting}
           >

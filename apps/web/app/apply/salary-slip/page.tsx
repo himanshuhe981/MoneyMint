@@ -111,43 +111,34 @@ export default function SalarySlipPage() {
   }
 
   return (
-    <div className="animate-fade-in">
-      <div className="page-header">
-        <h1>Upload Salary Slip</h1>
-        <p>Provide your latest net salary slip for income verification.</p>
+    <div className="animate-[fadeIn_0.3s_ease-out] w-full px-4">
+      <div className="mb-8 text-center max-w-lg mx-auto">
+        <h1 className="text-2xl font-serif font-semibold tracking-tight text-black mb-2">Upload Salary Slip</h1>
+        <p className="text-[13px] font-medium text-text-secondary leading-relaxed">Provide your latest net salary slip for income verification.</p>
       </div>
 
-      <div className="card flex flex-col gap-6">
+      <div className="card w-full max-w-xl mx-auto flex flex-col gap-6 shadow-[6px_6px_0px_rgba(0,0,0,1)]">
         {profile?.salarySlipUrl && (
-          <div className="alert alert-success">
-            <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center', gap: 'var(--space-3)' }}>
-              <div>
-                <span className="font-semibold">Salary Slip Verified</span>
-                <p className="text-xs text-success mt-1">A valid salary slip is already on file.</p>
-              </div>
-              <a
-                href={profile.salarySlipUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-ghost btn-sm"
-                style={{ backgroundColor: 'rgba(255,255,255,0.6)', borderColor: 'rgba(0,0,0,0.1)' }}
-              >
-                View Uploaded File
-              </a>
+          <div className="bg-green-50/50 border border-green-200 p-4 flex items-center justify-between">
+            <div>
+              <span className="font-bold text-green-900 block text-xs">Salary Slip Verified</span>
+              <p className="text-[10px] font-medium text-green-700 mt-1">A valid salary slip is already on file.</p>
             </div>
+            <a
+              href={profile.salarySlipUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-ghost bg-white border-black/10 text-[10px] px-3 py-1.5 uppercase tracking-widest font-bold"
+            >
+              View File
+            </a>
           </div>
         )}
 
         <div
-          style={{
-            border: dragActive ? '2px dashed var(--color-accent)' : '2px dashed var(--color-border)',
-            borderRadius: 'var(--radius-lg)',
-            padding: 'var(--space-8)',
-            textAlign: 'center',
-            cursor: 'pointer',
-            backgroundColor: dragActive ? 'var(--color-accent-subtle)' : 'var(--color-surface)',
-            transition: 'all 0.15s ease'
-          }}
+          className={`border-2 border-dashed p-8 sm:p-12 text-center cursor-pointer transition-all duration-200 ${
+            dragActive ? 'border-accent bg-accent/5 scale-[1.01]' : 'border-black/20 hover:border-black/40 hover:bg-[#fafafa]'
+          }`}
           onDragEnter={handleDrag}
           onDragOver={handleDrag}
           onDragLeave={handleDrag}
@@ -158,48 +149,48 @@ export default function SalarySlipPage() {
             ref={fileInputRef}
             type="file"
             accept=".pdf,.jpg,.jpeg,.png"
-            style={{ display: 'none' }}
+            className="hidden"
             onChange={handleFileChange}
           />
           
           <svg
-            width="40"
-            height="40"
+            width="48"
+            height="48"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="var(--color-text-muted)"
+            stroke="currentColor"
             strokeWidth="1.5"
-            style={{ margin: '0 auto var(--space-4)' }}
+            className="mx-auto mb-4 text-black/40"
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
           </svg>
 
           {selectedFile ? (
             <div>
-              <div className="font-semibold text-accent">{selectedFile.name}</div>
-              <div className="text-xs text-muted mt-1">
+              <div className="font-bold text-sm text-black">{selectedFile.name}</div>
+              <div className="text-xs font-medium text-text-secondary mt-1">
                 {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
               </div>
             </div>
           ) : (
             <div>
-              <div className="font-semibold">Drag & drop your file here, or click to browse</div>
-              <div className="text-xs text-muted mt-2">Supports PDF, JPG, PNG up to 5MB</div>
+              <div className="font-bold text-sm text-black">Drag & drop your file here, or click to browse</div>
+              <div className="text-xs font-medium text-text-secondary mt-2">Supports PDF, JPG, PNG up to 5MB</div>
             </div>
           )}
         </div>
 
         {selectedFile && (
-          <div className="flex justify-end gap-3">
+          <div className="flex justify-end gap-3 pt-4 border-t border-black/10">
             <button
-              className="btn btn-ghost"
+              className="btn btn-ghost px-6 py-2.5 text-xs font-bold uppercase tracking-widest"
               onClick={() => setSelectedFile(null)}
               disabled={uploading}
             >
               Clear
             </button>
             <button
-              className="btn className btn-primary"
+              className="btn btn-primary px-6 py-2.5 text-xs font-bold uppercase tracking-widest"
               onClick={handleUpload}
               disabled={uploading}
             >
@@ -208,16 +199,16 @@ export default function SalarySlipPage() {
           </div>
         )}
 
-        <div className="flex justify-between mt-4" style={{ borderTop: '1px solid var(--color-border-light)', paddingTop: 'var(--space-6)' }}>
+        <div className="flex justify-between mt-4 pt-6 border-t border-black/10">
           <button
-            className="btn btn-ghost"
+            className="btn btn-ghost text-xs px-6 py-3 font-bold uppercase tracking-widest border border-black/20"
             onClick={() => router.push('/apply')}
           >
             Back
           </button>
           
           <button
-            className="btn btn-primary"
+            className="btn btn-primary text-xs px-8 py-3 font-bold uppercase tracking-widest shadow-[4px_4px_0px_rgba(196,240,39,1)]"
             onClick={() => router.push('/apply/loan')}
             disabled={!profile?.salarySlipUrl}
           >
