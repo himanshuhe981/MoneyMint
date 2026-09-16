@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/moneymint/moneymint/main/apps/web/public/MoneyMintLogo.svg" alt="MoneyMint Logo" width="100"/>
+  <img src="./apps/web/public/MoneyMintLogo.svg" alt="MoneyMint Logo" width="100"/>
   <h1>MoneyMint LMS</h1>
   <p><strong>Next-Generation Automated Lending Infrastructure</strong></p>
   <a href="https://money-mint-web.vercel.app/">View Live Project</a>
