@@ -94,79 +94,85 @@ export default function SanctionPage() {
   }
 
   return (
-    <div className="animate-fade-in">
-      <div className="page-header">
-        <h1>Sanction Dashboard</h1>
-        <p>Review submitted loan applications, verify details, and approve/reject.</p>
+    <div className="animate-[fadeIn_0.3s_ease-out]">
+      <div className="mb-10 pb-6 border-b border-black/10">
+        <h1 className="text-3xl font-serif font-bold tracking-tight text-black mb-2">Sanction Dashboard</h1>
+        <p className="text-sm font-medium text-text-secondary">Review submitted loan applications, verify details, and approve/reject.</p>
       </div>
 
       {loans.length === 0 ? (
-        <div className="card empty-state">
+        <div className="card w-full flex flex-col items-center text-center p-12 shadow-[8px_8px_0px_rgba(0,0,0,1)] bg-white border border-black">
           <svg
-            width="48"
-            height="48"
+            width="64"
+            height="64"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
             strokeWidth="1.5"
+            className="mb-6 text-black/40"
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <h3>No Pending Reviews</h3>
-          <p className="text-sm text-muted">All applied loans have been reviewed.</p>
+          <h3 className="text-2xl font-serif font-bold mb-3">No Pending Reviews</h3>
+          <p className="text-sm font-medium text-text-secondary">All applied loans have been reviewed.</p>
         </div>
       ) : (
-        <div className="table-wrapper">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Borrower</th>
-                <th>PAN</th>
-                <th>Requested Amount</th>
-                <th>Tenure</th>
-                <th>Repayment</th>
-                <th>Applied Date</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loans.map((loan) => {
-                const profile = typeof loan.profileId === 'object' && loan.profileId !== null ? loan.profileId : null
-                const borrower = typeof loan.borrowerId === 'object' && loan.borrowerId !== null ? loan.borrowerId : null
-                return (
-                  <tr
-                    key={loan._id}
-                    className="cursor-pointer"
-                    onClick={() => openReview(loan)}
-                  >
-                    <td>
-                      <div className="font-semibold">{profile?.fullName || '—'}</div>
-                      <div className="text-xs text-muted">{borrower?.email || '—'}</div>
-                    </td>
-                    <td style={{ fontFamily: 'var(--font-mono)' }}>{profile?.pan || '—'}</td>
-                    <td className="font-semibold">₹{loan.loanAmount.toLocaleString('en-IN')}</td>
-                    <td>{loan.tenure} Days</td>
-                    <td>₹{loan.totalRepayment.toLocaleString('en-IN')}</td>
-                    <td>
-                      {new Date(loan.createdAt).toLocaleDateString('en-IN', {
-                        day: '2-digit',
-                        month: 'short',
-                        year: 'numeric'
-                      })}
-                    </td>
-                    <td>
-                      <button
-                        className="btn btn-ghost btn-sm"
-                        onClick={() => openReview(loan)}
-                      >
-                        Review
-                      </button>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+        <div className="bg-white border border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-[#fafafa] border-b border-black/10">
+                  <th className="text-[10px] font-bold tracking-widest uppercase text-text-secondary py-4 px-6 font-sans">Borrower</th>
+                  <th className="text-[10px] font-bold tracking-widest uppercase text-text-secondary py-4 px-6 font-sans">PAN</th>
+                  <th className="text-[10px] font-bold tracking-widest uppercase text-text-secondary py-4 px-6 font-sans">Requested Amount</th>
+                  <th className="text-[10px] font-bold tracking-widest uppercase text-text-secondary py-4 px-6 font-sans">Tenure</th>
+                  <th className="text-[10px] font-bold tracking-widest uppercase text-text-secondary py-4 px-6 font-sans">Repayment</th>
+                  <th className="text-[10px] font-bold tracking-widest uppercase text-text-secondary py-4 px-6 font-sans">Applied Date</th>
+                  <th className="text-[10px] font-bold tracking-widest uppercase text-text-secondary py-4 px-6 font-sans">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-black/10">
+                {loans.map((loan) => {
+                  const profile = typeof loan.profileId === 'object' && loan.profileId !== null ? loan.profileId : null
+                  const borrower = typeof loan.borrowerId === 'object' && loan.borrowerId !== null ? loan.borrowerId : null
+                  return (
+                    <tr
+                      key={loan._id}
+                      className="cursor-pointer transition-colors hover:bg-[#fafafa]"
+                      onClick={() => openReview(loan)}
+                    >
+                      <td className="py-4 px-6">
+                        <div className="font-bold text-sm text-black">{profile?.fullName || '—'}</div>
+                        <div className="text-xs font-medium text-text-secondary">{borrower?.email || '—'}</div>
+                      </td>
+                      <td className="py-4 px-6 font-mono text-sm uppercase">{profile?.pan || '—'}</td>
+                      <td className="py-4 px-6 font-bold text-sm">₹{loan.loanAmount.toLocaleString('en-IN')}</td>
+                      <td className="py-4 px-6 text-sm font-medium">{loan.tenure} Days</td>
+                      <td className="py-4 px-6 text-sm font-medium">₹{loan.totalRepayment.toLocaleString('en-IN')}</td>
+                      <td className="py-4 px-6 text-sm font-medium">
+                        {new Date(loan.createdAt).toLocaleDateString('en-IN', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric'
+                        })}
+                      </td>
+                      <td className="py-4 px-6">
+                        <button
+                          className="btn btn-ghost px-4 py-2 text-xs font-bold uppercase tracking-widest"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            openReview(loan)
+                          }}
+                        >
+                          Review
+                        </button>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
@@ -181,97 +187,95 @@ export default function SanctionPage() {
             const profile = typeof selectedLoan.profileId === 'object' && selectedLoan.profileId !== null ? (selectedLoan.profileId as unknown as BorrowerProfile) : null
             const borrower = typeof selectedLoan.borrowerId === 'object' && selectedLoan.borrowerId !== null ? selectedLoan.borrowerId : null
             return (
-              <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-8">
                 {/* Borrower details */}
                 <div>
-                  <h4 className="mb-3 text-sm text-muted">APPLICANT PROFILE</h4>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)', fontSize: 'var(--text-sm)' }}>
+                  <h4 className="text-[10px] font-bold tracking-widest uppercase text-text-secondary mb-4 pb-2 border-b border-black/10">Applicant Profile</h4>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span className="text-muted">Full Name:</span>{' '}
-                      <span className="font-medium">{profile?.fullName || '—'}</span>
+                      <span className="block text-[10px] font-bold tracking-widest uppercase text-text-secondary mb-1">Full Name</span>
+                      <span className="font-bold">{profile?.fullName || '—'}</span>
                     </div>
                     <div>
-                      <span className="text-muted">Email Address:</span>{' '}
-                      <span className="font-medium">{borrower?.email || '—'}</span>
+                      <span className="block text-[10px] font-bold tracking-widest uppercase text-text-secondary mb-1">Email Address</span>
+                      <span className="font-bold">{borrower?.email || '—'}</span>
                     </div>
                     <div>
-                      <span className="text-muted">PAN Card:</span>{' '}
-                      <span className="font-medium" style={{ fontFamily: 'var(--font-mono)' }}>{profile?.pan || '—'}</span>
+                      <span className="block text-[10px] font-bold tracking-widest uppercase text-text-secondary mb-1">PAN Card</span>
+                      <span className="font-bold font-mono uppercase">{profile?.pan || '—'}</span>
                     </div>
                     <div>
-                      <span className="text-muted">Employment Mode:</span>{' '}
-                      <span className="font-medium">{profile?.employmentMode || '—'}</span>
+                      <span className="block text-[10px] font-bold tracking-widest uppercase text-text-secondary mb-1">Employment Mode</span>
+                      <span className="font-bold">{profile?.employmentMode?.replace('_', ' ') || '—'}</span>
                     </div>
                     <div>
-                      <span className="text-muted">Monthly Net Salary:</span>{' '}
-                      <span className="font-medium">₹{profile?.monthlySalary?.toLocaleString('en-IN') || '—'}</span>
+                      <span className="block text-[10px] font-bold tracking-widest uppercase text-text-secondary mb-1">Monthly Net Salary</span>
+                      <span className="font-bold">₹{profile?.monthlySalary?.toLocaleString('en-IN') || '—'}</span>
                     </div>
                     <div>
-                      <span className="text-muted">Salary Slip:</span>{' '}
+                      <span className="block text-[10px] font-bold tracking-widest uppercase text-text-secondary mb-1">Salary Slip</span>
                       {profile?.salarySlipUrl ? (
                         <a
                           href={profile.salarySlipUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="font-medium text-accent hover:underline"
+                          className="font-bold text-accent hover:underline"
                         >
-                          View Salary Slip ↗
+                          View Salary Slip <svg className="w-3 h-3 ml-1 inline-block text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                         </a>
                       ) : (
-                        <span className="text-danger">Not Uploaded</span>
+                        <span className="font-bold text-red-600">Not Uploaded</span>
                       )}
                     </div>
                   </div>
                 </div>
 
-                <div className="divider" style={{ margin: 0 }} />
-
                 {/* Loan terms */}
                 <div>
-                  <h4 className="mb-3 text-sm text-muted">REQUESTED LOAN TERMS</h4>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)', fontSize: 'var(--text-sm)' }}>
+                  <h4 className="text-[10px] font-bold tracking-widest uppercase text-text-secondary mb-4 pb-2 border-b border-black/10">Requested Loan Terms</h4>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span className="text-muted">Principal Amount:</span>{' '}
-                      <span className="font-semibold text-accent">₹{selectedLoan.loanAmount.toLocaleString('en-IN')}</span>
+                      <span className="block text-[10px] font-bold tracking-widest uppercase text-text-secondary mb-1">Principal Amount</span>
+                      <span className="font-bold text-accent">₹{selectedLoan.loanAmount.toLocaleString('en-IN')}</span>
                     </div>
                     <div>
-                      <span className="text-muted">Tenure Period:</span>{' '}
-                      <span className="font-medium">{selectedLoan.tenure} Days</span>
+                      <span className="block text-[10px] font-bold tracking-widest uppercase text-text-secondary mb-1">Tenure Period</span>
+                      <span className="font-bold">{selectedLoan.tenure} Days</span>
                     </div>
                     <div>
-                      <span className="text-muted">Interest Rate:</span>{' '}
-                      <span className="font-medium">{selectedLoan.interestRate}% p.a.</span>
+                      <span className="block text-[10px] font-bold tracking-widest uppercase text-text-secondary mb-1">Interest Rate</span>
+                      <span className="font-bold">{selectedLoan.interestRate}% p.a.</span>
                     </div>
                     <div>
-                      <span className="text-muted">Simple Interest:</span>{' '}
-                      <span className="font-medium">₹{selectedLoan.simpleInterest.toLocaleString('en-IN')}</span>
+                      <span className="block text-[10px] font-bold tracking-widest uppercase text-text-secondary mb-1">Simple Interest</span>
+                      <span className="font-bold">₹{selectedLoan.simpleInterest.toLocaleString('en-IN')}</span>
                     </div>
-                    <div style={{ gridColumn: 'span 2' }}>
-                      <span className="text-muted">Total Repayment Amount:</span>{' '}
-                      <span className="font-semibold">₹{selectedLoan.totalRepayment.toLocaleString('en-IN')}</span>
+                    <div className="col-span-2 pt-2 border-t border-black/10 mt-2">
+                      <span className="block text-[10px] font-bold tracking-widest uppercase text-text-secondary mb-1">Total Repayment Amount</span>
+                      <span className="font-serif text-2xl font-bold">₹{selectedLoan.totalRepayment.toLocaleString('en-IN')}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Approve/Reject Area */}
                 {!showRejectForm ? (
-                  <div className="flex justify-end gap-3 mt-4" style={{ borderTop: '1px solid var(--color-border-light)', paddingTop: 'var(--space-4)' }}>
+                  <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-black/10">
                     <button
-                      className="btn btn-ghost"
+                      className="btn btn-ghost px-6 py-2.5 text-xs font-bold uppercase tracking-widest"
                       onClick={() => setSelectedLoan(null)}
                       disabled={actioning}
                     >
                       Cancel
                     </button>
                     <button
-                      className="btn btn-danger"
+                      className="btn bg-red-600 text-white hover:bg-red-700 px-6 py-2.5 text-xs font-bold uppercase tracking-widest border border-red-700 shadow-[4px_4px_0px_rgba(185,28,28,0.2)]"
                       onClick={() => setShowRejectForm(true)}
                       disabled={actioning}
                     >
                       Reject Application
                     </button>
                     <button
-                      className="btn btn-primary"
+                      className="btn btn-primary px-6 py-2.5 text-xs font-bold uppercase tracking-widest shadow-[4px_4px_0px_rgba(196,240,39,1)]"
                       onClick={() => handleApprove(selectedLoan._id)}
                       disabled={actioning}
                     >
@@ -279,23 +283,24 @@ export default function SanctionPage() {
                     </button>
                   </div>
                 ) : (
-                  <form onSubmit={handleReject} className="flex flex-col gap-4 mt-2" style={{ borderTop: '1px solid var(--color-border-light)', paddingTop: 'var(--space-4)' }}>
-                    <div className="form-group">
+                  <form onSubmit={handleReject} className="flex flex-col gap-6 pt-6 border-t border-black/10">
+                    <div>
                       <label className="form-label" htmlFor="reason">Reason for Rejection</label>
                       <textarea
                         id="reason"
-                        className="input"
+                        className="input rounded-none"
                         placeholder="Provide details on why this loan application is rejected (e.g. documents unclear, verification failed)..."
                         value={rejectionReason}
                         onChange={(e) => setRejectionReason(e.target.value)}
                         disabled={actioning}
                         required
+                        rows={3}
                       />
                     </div>
-                    <div className="flex justify-end gap-3">
+                    <div className="flex flex-col sm:flex-row justify-end gap-3">
                       <button
                         type="button"
-                        className="btn btn-ghost"
+                        className="btn btn-ghost px-6 py-2.5 text-xs font-bold uppercase tracking-widest"
                         onClick={() => setShowRejectForm(false)}
                         disabled={actioning}
                       >
@@ -303,7 +308,7 @@ export default function SanctionPage() {
                       </button>
                       <button
                         type="submit"
-                        className="btn btn-danger"
+                        className="btn bg-red-600 text-white hover:bg-red-700 px-6 py-2.5 text-xs font-bold uppercase tracking-widest border border-red-700 shadow-[4px_4px_0px_rgba(185,28,28,0.2)]"
                         disabled={actioning}
                       >
                         {actioning ? 'Rejecting...' : 'Confirm Rejection'}

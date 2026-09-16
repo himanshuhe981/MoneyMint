@@ -128,193 +128,203 @@ export default function CollectionPage() {
   }
 
   return (
-    <div className="animate-fade-in">
-      <div className="page-header">
-        <h1>Collection Dashboard</h1>
-        <p>Record repayment transactions, check outstanding balances, and track payment histories.</p>
+    <div className="animate-[fadeIn_0.3s_ease-out]">
+      <div className="mb-10 pb-6 border-b border-black/10">
+        <h1 className="text-3xl font-serif font-bold tracking-tight text-black mb-2">Collection Dashboard</h1>
+        <p className="text-sm font-medium text-text-secondary">Record repayment transactions, check outstanding balances, and track payment histories.</p>
       </div>
 
       {loans.length === 0 ? (
-        <div className="card empty-state">
+        <div className="card w-full flex flex-col items-center text-center p-12 shadow-[8px_8px_0px_rgba(0,0,0,1)] bg-white border border-black">
           <svg
-            width="48"
-            height="48"
+            width="64"
+            height="64"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
             strokeWidth="1.5"
+            className="mb-6 text-black/40"
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <h3>No Active Collections</h3>
-          <p className="text-sm text-muted">There are no disbursed loans currently awaiting repayment.</p>
+          <h3 className="text-2xl font-serif font-bold mb-3">No Active Collections</h3>
+          <p className="text-sm font-medium text-text-secondary">There are no disbursed loans currently awaiting repayment.</p>
         </div>
       ) : (
-        <div className="table-wrapper">
-          <table className="table" style={{ width: '100%' }}>
-            <thead>
-              <tr>
-                <th>Borrower</th>
-                <th>Loan Amount</th>
-                <th>Total Repayment</th>
-                <th>Amount Paid</th>
-                <th>Outstanding</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loans.map((loan) => {
-                const profile = typeof loan.profileId === 'object' && loan.profileId !== null ? loan.profileId : null
-                const borrower = typeof loan.borrowerId === 'object' && loan.borrowerId !== null ? loan.borrowerId : null
-                const isExpanded = expandedLoanId === loan._id
-                const borrowerName = profile?.fullName || borrower?.name || '—'
+        <div className="bg-white border border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-[#fafafa] border-b border-black/10">
+                  <th className="text-[10px] font-bold tracking-widest uppercase text-text-secondary py-4 px-6 font-sans">Borrower</th>
+                  <th className="text-[10px] font-bold tracking-widest uppercase text-text-secondary py-4 px-6 font-sans">Loan Amount</th>
+                  <th className="text-[10px] font-bold tracking-widest uppercase text-text-secondary py-4 px-6 font-sans">Total Repayment</th>
+                  <th className="text-[10px] font-bold tracking-widest uppercase text-text-secondary py-4 px-6 font-sans">Amount Paid</th>
+                  <th className="text-[10px] font-bold tracking-widest uppercase text-text-secondary py-4 px-6 font-sans">Outstanding</th>
+                  <th className="text-[10px] font-bold tracking-widest uppercase text-text-secondary py-4 px-6 font-sans">Status</th>
+                  <th className="text-[10px] font-bold tracking-widest uppercase text-text-secondary py-4 px-6 font-sans">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-black/10">
+                {loans.map((loan) => {
+                  const profile = typeof loan.profileId === 'object' && loan.profileId !== null ? loan.profileId : null
+                  const borrower = typeof loan.borrowerId === 'object' && loan.borrowerId !== null ? loan.borrowerId : null
+                  const isExpanded = expandedLoanId === loan._id
+                  const borrowerName = profile?.fullName || borrower?.name || '—'
 
-                return (
-                  <React.Fragment key={loan._id}>
-                    <tr style={{ cursor: 'pointer' }} onClick={() => handleToggleExpand(loan._id)}>
-                      <td>
-                        <div className="font-semibold">{borrowerName}</div>
-                        <div className="text-xs text-muted">{borrower?.email || '—'}</div>
-                      </td>
-                      <td>₹{loan.loanAmount.toLocaleString('en-IN')}</td>
-                      <td>₹{loan.totalRepayment.toLocaleString('en-IN')}</td>
-                      <td className="text-success font-medium">₹{loan.amountPaid.toLocaleString('en-IN')}</td>
-                      <td className="text-danger font-semibold">₹{loan.outstandingBalance.toLocaleString('en-IN')}</td>
-                      <td>
-                        <StatusBadge status={loan.status} />
-                      </td>
-                      <td>
-                        <button
-                          className="btn btn-ghost btn-sm"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleToggleExpand(loan._id)
-                          }}
-                        >
-                          {isExpanded ? 'Hide Details' : 'Payments & Record'}
-                        </button>
-                      </td>
-                    </tr>
+                  return (
+                    <React.Fragment key={loan._id}>
+                      <tr 
+                        className={`cursor-pointer transition-colors hover:bg-[#fafafa] ${isExpanded ? 'bg-[#fafafa]' : ''}`}
+                        onClick={() => handleToggleExpand(loan._id)}
+                      >
+                        <td className="py-4 px-6">
+                          <div className="font-bold text-sm text-black">{borrowerName}</div>
+                          <div className="text-xs font-medium text-text-secondary">{borrower?.email || '—'}</div>
+                        </td>
+                        <td className="py-4 px-6 font-bold text-sm">₹{loan.loanAmount.toLocaleString('en-IN')}</td>
+                        <td className="py-4 px-6 text-sm font-medium">₹{loan.totalRepayment.toLocaleString('en-IN')}</td>
+                        <td className="py-4 px-6 text-sm font-bold text-green-700">₹{loan.amountPaid.toLocaleString('en-IN')}</td>
+                        <td className="py-4 px-6 text-sm font-bold text-red-600">₹{loan.outstandingBalance.toLocaleString('en-IN')}</td>
+                        <td className="py-4 px-6">
+                          <StatusBadge status={loan.status} />
+                        </td>
+                        <td className="py-4 px-6">
+                          <button
+                            className={`btn px-4 py-2 text-xs font-bold uppercase tracking-widest transition-all ${
+                              isExpanded 
+                                ? 'bg-black text-white hover:bg-black/90' 
+                                : 'bg-transparent border border-black/20 hover:border-black text-black'
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleToggleExpand(loan._id)
+                            }}
+                          >
+                            {isExpanded ? 'Hide Details' : 'Payments & Record'}
+                          </button>
+                        </td>
+                      </tr>
 
-                    {/* Expandable details panel */}
-                    {isExpanded && (
-                      <tr>
-                        <td colSpan={7} style={{ background: 'var(--color-bg)', padding: 'var(--space-5)', cursor: 'default' }} onClick={(e) => e.stopPropagation()}>
-                          <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 'var(--space-8)' }}>
-                            {/* Left Side: Payments History */}
-                            <div style={{ flex: '1 1 350px' }}>
-                              <h4 className="mb-3 text-xs text-muted font-semibold">PAYMENT HISTORY</h4>
-                              {loadingPayments ? (
-                                <LoadingSpinner size={24} />
-                              ) : payments.length === 0 ? (
-                                <div className="text-xs text-muted" style={{ padding: 'var(--space-4) 0' }}>
-                                  No payments have been recorded for this loan yet.
-                                </div>
-                              ) : (
-                                <div className="table-wrapper" style={{ maxHeight: '250px', overflowY: 'auto' }}>
-                                  <table className="table text-xs">
-                                    <thead>
-                                      <tr>
-                                        <th>UTR Number</th>
-                                        <th>Amount</th>
-                                        <th>Date Paid</th>
-                                        <th>Recorded By</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      {payments.map((payment) => {
-                                        const recordedBy = typeof payment.recordedBy === 'object' && payment.recordedBy !== null ? payment.recordedBy : null
-                                        return (
-                                          <tr key={payment._id}>
-                                            <td style={{ fontFamily: 'var(--font-mono)' }}>{payment.utrNumber}</td>
-                                            <td className="font-semibold text-success">₹{payment.amount.toLocaleString('en-IN')}</td>
-                                            <td>
-                                              {new Date(payment.date).toLocaleDateString('en-IN', {
-                                                day: '2-digit',
-                                                month: 'short',
-                                                year: 'numeric'
-                                              })}
-                                            </td>
-                                            <td>{recordedBy?.name || '—'}</td>
-                                          </tr>
-                                        )
-                                      })}
-                                    </tbody>
-                                  </table>
+                      {/* Expandable details panel */}
+                      {isExpanded && (
+                        <tr className="bg-[#fafafa]">
+                          <td colSpan={7} className="p-0 border-t border-black/10" onClick={(e) => e.stopPropagation()}>
+                            <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-8">
+                              {/* Left Side: Payments History */}
+                              <div className="lg:col-span-2">
+                                <h4 className="text-[10px] font-bold tracking-widest uppercase text-text-secondary mb-4 pb-2 border-b border-black/10">Payment History</h4>
+                                {loadingPayments ? (
+                                  <div className="py-8"><LoadingSpinner size={24} /></div>
+                                ) : payments.length === 0 ? (
+                                  <div className="text-sm font-medium text-text-secondary py-8 text-center bg-white border border-black/10">
+                                    No payments have been recorded for this loan yet.
+                                  </div>
+                                ) : (
+                                  <div className="bg-white border border-black/10 max-h-[250px] overflow-y-auto">
+                                    <table className="w-full text-left border-collapse text-xs">
+                                      <thead className="bg-[#fafafa] sticky top-0 border-b border-black/10">
+                                        <tr>
+                                          <th className="py-3 px-4 font-bold tracking-widest uppercase text-text-secondary">UTR Number</th>
+                                          <th className="py-3 px-4 font-bold tracking-widest uppercase text-text-secondary">Amount</th>
+                                          <th className="py-3 px-4 font-bold tracking-widest uppercase text-text-secondary">Date Paid</th>
+                                          <th className="py-3 px-4 font-bold tracking-widest uppercase text-text-secondary">Recorded By</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody className="divide-y divide-black/10">
+                                        {payments.map((payment) => {
+                                          const recordedBy = typeof payment.recordedBy === 'object' && payment.recordedBy !== null ? payment.recordedBy : null
+                                          return (
+                                            <tr key={payment._id}>
+                                              <td className="py-3 px-4 font-mono font-medium">{payment.utrNumber}</td>
+                                              <td className="py-3 px-4 font-bold text-green-700">₹{payment.amount.toLocaleString('en-IN')}</td>
+                                              <td className="py-3 px-4 font-medium">
+                                                {new Date(payment.date).toLocaleDateString('en-IN', {
+                                                  day: '2-digit',
+                                                  month: 'short',
+                                                  year: 'numeric'
+                                                })}
+                                              </td>
+                                              <td className="py-3 px-4 font-medium">{recordedBy?.name || '—'}</td>
+                                            </tr>
+                                          )
+                                        })}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Right Side: Record a payment */}
+                              {loan.status !== 'CLOSED' && (
+                                <div className="bg-white border border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] p-6 h-fit">
+                                  <h4 className="text-[10px] font-bold tracking-widest uppercase text-text-secondary mb-4 pb-2 border-b border-black/10">Record New Repayment</h4>
+                                  <form onSubmit={(e) => handleRecordPayment(e, loan._id)} className="flex flex-col gap-4">
+                                    <div>
+                                      <label className="form-label text-[10px]" htmlFor={`utr-${loan._id}`}>UTR Number</label>
+                                      <input
+                                        id={`utr-${loan._id}`}
+                                        type="text"
+                                        className="input rounded-none text-xs"
+                                        placeholder="e.g. UTR123456789"
+                                        value={utrNumber}
+                                        onChange={(e) => setUtrNumber(e.target.value)}
+                                        disabled={recording}
+                                        required
+                                      />
+                                    </div>
+
+                                    <div>
+                                      <label className="form-label text-[10px]" htmlFor={`amount-${loan._id}`}>Amount Paid (₹)</label>
+                                      <input
+                                        id={`amount-${loan._id}`}
+                                        type="number"
+                                        className="input rounded-none text-xs"
+                                        placeholder="e.g. 15000"
+                                        value={amount}
+                                        onChange={(e) => setAmount(e.target.value)}
+                                        max={loan.outstandingBalance}
+                                        disabled={recording}
+                                        required
+                                      />
+                                      <span className="form-hint text-[10px] tracking-widest font-bold mt-1">
+                                        Max outstanding: ₹{loan.outstandingBalance.toLocaleString('en-IN')}
+                                      </span>
+                                    </div>
+
+                                    <div>
+                                      <label className="form-label text-[10px]" htmlFor={`date-${loan._id}`}>Date Received</label>
+                                      <input
+                                        id={`date-${loan._id}`}
+                                        type="date"
+                                        className="input rounded-none text-xs"
+                                        value={date}
+                                        onChange={(e) => setDate(e.target.value)}
+                                        disabled={recording}
+                                        required
+                                      />
+                                    </div>
+
+                                    <button
+                                      type="submit"
+                                      className="btn btn-primary w-full mt-2 text-xs font-bold uppercase tracking-widest shadow-[4px_4px_0px_rgba(196,240,39,1)]"
+                                      disabled={recording}
+                                    >
+                                      {recording ? 'Recording...' : 'Record Payment'}
+                                    </button>
+                                  </form>
                                 </div>
                               )}
                             </div>
-
-                            {/* Right Side: Record a payment */}
-                            {loan.status !== 'CLOSED' && (
-                              <div style={{ flex: '1 1 250px', background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: 'var(--space-4)' }}>
-                                <h4 className="mb-3 text-xs text-muted font-semibold">RECORD NEW REPAYMENT</h4>
-                                <form onSubmit={(e) => handleRecordPayment(e, loan._id)} className="flex flex-col gap-3">
-                                  <div className="form-group">
-                                    <label className="form-label" style={{ fontSize: '11px' }} htmlFor={`utr-${loan._id}`}>UTR Number</label>
-                                    <input
-                                      id={`utr-${loan._id}`}
-                                      type="text"
-                                      className="input text-xs"
-                                      placeholder="e.g. UTR123456789"
-                                      value={utrNumber}
-                                      onChange={(e) => setUtrNumber(e.target.value)}
-                                      disabled={recording}
-                                      required
-                                    />
-                                  </div>
-
-                                  <div className="form-group">
-                                    <label className="form-label" style={{ fontSize: '11px' }} htmlFor={`amount-${loan._id}`}>Amount Paid (₹)</label>
-                                    <input
-                                      id={`amount-${loan._id}`}
-                                      type="number"
-                                      className="input text-xs"
-                                      placeholder="e.g. 15000"
-                                      value={amount}
-                                      onChange={(e) => setAmount(e.target.value)}
-                                      max={loan.outstandingBalance}
-                                      disabled={recording}
-                                      required
-                                    />
-                                    <span className="form-hint" style={{ fontSize: '10px' }}>
-                                      Max outstanding: ₹{loan.outstandingBalance.toLocaleString('en-IN')}
-                                    </span>
-                                  </div>
-
-                                  <div className="form-group">
-                                    <label className="form-label" style={{ fontSize: '11px' }} htmlFor={`date-${loan._id}`}>Date Received</label>
-                                    <input
-                                      id={`date-${loan._id}`}
-                                      type="date"
-                                      className="input text-xs"
-                                      value={date}
-                                      onChange={(e) => setDate(e.target.value)}
-                                      disabled={recording}
-                                      required
-                                    />
-                                  </div>
-
-                                  <button
-                                    type="submit"
-                                    className="btn btn-primary btn-sm btn-full mt-2"
-                                    disabled={recording}
-                                  >
-                                    {recording ? 'Recording...' : 'Record Payment'}
-                                  </button>
-                                </form>
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    )}
-                  </React.Fragment>
-                )
-              })}
-            </tbody>
-          </table>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

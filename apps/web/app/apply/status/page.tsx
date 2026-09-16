@@ -50,15 +50,15 @@ export default function StatusPage() {
   }
 
   return (
-    <div className="animate-fade-in">
-      <div className="page-header flex justify-between items-center">
+    <div className="animate-[fadeIn_0.3s_ease-out]">
+      <div className="mb-10 flex justify-between items-end border-b border-black/10 pb-6">
         <div>
-          <h1>My Loans</h1>
-          <p>Track the lifecycle of your loan applications and payments.</p>
+          <h1 className="text-3xl font-serif font-bold tracking-tight text-black mb-2">My Loans</h1>
+          <p className="text-sm font-medium text-text-secondary">Track the lifecycle of your loan applications and payments.</p>
         </div>
         {loans.length > 0 && (
           <button
-            className="btn btn-primary btn-sm"
+            className="btn btn-primary text-xs px-6 py-2.5 font-bold uppercase tracking-widest shadow-[4px_4px_0px_rgba(196,240,39,1)] hover:shadow-[6px_6px_0px_rgba(196,240,39,1)]"
             onClick={() => router.push('/apply/loan')}
           >
             Apply Again
@@ -67,62 +67,63 @@ export default function StatusPage() {
       </div>
 
       {loans.length === 0 ? (
-        <div className="card empty-state">
+        <div className="card max-w-2xl mx-auto flex flex-col items-center text-center p-12 shadow-[8px_8px_0px_rgba(0,0,0,1)]">
           <svg
-            width="48"
-            height="48"
+            width="64"
+            height="64"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
             strokeWidth="1.5"
+            className="mb-6 text-black/40"
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
           </svg>
-          <h3>No Loan Applications Found</h3>
-          <p className="text-sm text-muted mb-4">You haven&apos;t submitted any loan requests yet.</p>
+          <h3 className="text-2xl font-serif font-bold mb-3">No Loan Applications Found</h3>
+          <p className="text-sm font-medium text-text-secondary mb-8">You haven&apos;t submitted any loan requests yet.</p>
           <button
-            className="btn btn-primary"
+            className="btn btn-primary text-xs px-8 py-3 font-bold uppercase tracking-widest shadow-[4px_4px_0px_rgba(196,240,39,1)]"
             onClick={() => router.push('/apply/loan')}
           >
             Configure & Apply Now
           </button>
         </div>
       ) : (
-        <div className="flex flex-col gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
           {loans.map((loan) => {
             const isRejected = loan.status === 'REJECTED'
             const isDisbursedOrClosed = loan.status === 'DISBURSED' || loan.status === 'CLOSED'
             const { percent, step } = getProgressInfo(loan.status)
 
             return (
-              <div key={loan._id} className="card flex flex-col gap-6 animate-fade-in">
+              <div key={loan._id} className="card flex flex-col gap-8 shadow-[8px_8px_0px_rgba(0,0,0,1)]">
                 {/* Header info */}
-                <div className="flex justify-between items-start">
+                <div className="flex justify-between items-start pb-6 border-b border-black/10">
                   <div>
-                    <span className="text-xs text-muted font-medium">LOAN ID: {loan._id}</span>
-                    <h3 className="mt-1" style={{ fontSize: 'var(--text-lg)' }}>
+                    <span className="text-[10px] text-text-secondary font-bold uppercase tracking-widest">LOAN ID: {loan._id}</span>
+                    <h3 className="mt-2 text-3xl font-serif font-bold">
                       ₹{loan.loanAmount.toLocaleString('en-IN')}
                     </h3>
                   </div>
                   <StatusBadge status={loan.status} />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)', fontSize: 'var(--text-sm)' }}>
+                <div className="grid grid-cols-2 gap-6 text-sm">
                   <div>
-                    <span className="text-muted">Tenure Period:</span>{' '}
-                    <span className="font-medium">{loan.tenure} Days</span>
+                    <span className="text-[10px] text-text-secondary font-bold uppercase tracking-widest block mb-1">Tenure Period</span>
+                    <span className="font-bold text-lg">{loan.tenure} Days</span>
                   </div>
                   <div>
-                    <span className="text-muted">Interest Rate:</span>{' '}
-                    <span className="font-medium">{loan.interestRate}% p.a.</span>
+                    <span className="text-[10px] text-text-secondary font-bold uppercase tracking-widest block mb-1">Interest Rate</span>
+                    <span className="font-bold text-lg">{loan.interestRate}% p.a.</span>
                   </div>
                   <div>
-                    <span className="text-muted">Total Repayment:</span>{' '}
-                    <span className="font-medium">₹{loan.totalRepayment.toLocaleString('en-IN')}</span>
+                    <span className="text-[10px] text-text-secondary font-bold uppercase tracking-widest block mb-1">Total Repayment</span>
+                    <span className="font-bold text-lg">₹{loan.totalRepayment.toLocaleString('en-IN')}</span>
                   </div>
                   <div>
-                    <span className="text-muted">Applied On:</span>{' '}
-                    <span className="font-medium">
+                    <span className="text-[10px] text-text-secondary font-bold uppercase tracking-widest block mb-1">Applied On</span>
+                    <span className="font-bold text-lg">
                       {new Date(loan.createdAt).toLocaleDateString('en-IN', {
                         day: '2-digit',
                         month: 'short',
@@ -134,99 +135,56 @@ export default function StatusPage() {
 
                 {/* Repayment details if disbursed */}
                 {isDisbursedOrClosed && (
-                  <div
-                    style={{
-                      background: 'var(--color-bg)',
-                      border: '1px solid var(--color-border)',
-                      borderRadius: 'var(--radius-md)',
-                      padding: 'var(--space-4)',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 'var(--space-2)',
-                      fontSize: 'var(--text-sm)'
-                    }}
-                  >
-                    <div className="font-semibold text-xs text-muted mb-1">REPAYMENT STATUS</div>
-                    <div className="flex justify-between">
-                      <span className="text-muted">Paid to Date:</span>
-                      <span className="font-medium text-success">₹{loan.amountPaid.toLocaleString('en-IN')}</span>
+                  <div className="bg-[#fafafa] border border-black/10 p-5 flex flex-col gap-3">
+                    <div className="font-bold text-[10px] text-text-secondary tracking-widest uppercase mb-1">REPAYMENT STATUS</div>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="font-medium text-text-secondary">Paid to Date:</span>
+                      <span className="font-bold text-green-700">₹{loan.amountPaid.toLocaleString('en-IN')}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted">Outstanding Balance:</span>
-                      <span className="font-medium text-danger">₹{loan.outstandingBalance.toLocaleString('en-IN')}</span>
+                    <div className="flex justify-between items-center text-sm">
+                      <span className="font-medium text-text-secondary">Outstanding Balance:</span>
+                      <span className="font-bold text-red-600">₹{loan.outstandingBalance.toLocaleString('en-IN')}</span>
                     </div>
                   </div>
                 )}
 
                 {/* Progress Bar Flow */}
                 {!isRejected ? (
-                  <div style={{ padding: 'var(--space-2) 0' }}>
-                    <div
-                      style={{
-                        position: 'relative',
-                        height: '6px',
-                        background: 'var(--color-border)',
-                        borderRadius: 'var(--radius-full)',
-                        marginBottom: 'var(--space-4)'
-                      }}
-                    >
+                  <div className="pt-4 border-t border-black/10">
+                    <div className="relative h-2 bg-black/10 mb-8 rounded-none mt-2">
                       <div
-                        style={{
-                          position: 'absolute',
-                          height: '100%',
-                          background: 'var(--color-accent)',
-                          borderRadius: 'var(--radius-full)',
-                          width: `${percent}%`,
-                          transition: 'width 0.4s ease'
-                        }}
+                        className="absolute h-full bg-black transition-all duration-500 ease-out"
+                        style={{ width: `${percent}%` }}
                       />
                       {/* Dots */}
-                      <div
-                        style={{
-                          position: 'absolute',
-                          top: '-4px',
-                          left: '0%',
-                          right: '0%',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          pointerEvents: 'none'
-                        }}
-                      >
+                      <div className="absolute -top-[6px] left-0 right-0 flex justify-between pointer-events-none">
                         {[1, 2, 3, 4].map((s) => {
                           const active = step >= s
                           return (
                             <div
                               key={s}
-                              style={{
-                                width: '14px',
-                                height: '14px',
-                                borderRadius: '50%',
-                                background: active ? 'var(--color-accent)' : 'var(--color-border)',
-                                border: '3px solid var(--color-surface)',
-                                boxShadow: 'var(--shadow-sm)',
-                                transition: 'background-color 0.4s ease'
-                              }}
+                              className={`w-5 h-5 bg-white border-[3px] transition-colors duration-500 ${
+                                active ? 'border-black' : 'border-black/20'
+                              }`}
                             />
                           )
                         })}
                       </div>
                     </div>
                     {/* Labels */}
-                    <div className="flex justify-between text-xs text-muted" style={{ fontWeight: 'var(--weight-medium)' }}>
-                      <span className={step >= 1 ? 'text-accent' : ''}>Applied</span>
-                      <span className={step >= 2 ? 'text-accent' : ''}>Sanctioned</span>
-                      <span className={step >= 3 ? 'text-accent' : ''}>Disbursed</span>
-                      <span className={step >= 4 ? 'text-accent' : ''}>Closed</span>
+                    <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-text-secondary">
+                      <span className={step >= 1 ? 'text-black' : ''}>Applied</span>
+                      <span className={step >= 2 ? 'text-black' : ''}>Sanctioned</span>
+                      <span className={step >= 3 ? 'text-black' : ''}>Disbursed</span>
+                      <span className={step >= 4 ? 'text-black' : ''}>Closed</span>
                     </div>
                   </div>
                 ) : (
-                  <div className="alert alert-error">
-                    <div>
-                      <div className="font-semibold">Loan Application Rejected</div>
-                      <p className="text-xs mt-1">
-                        Reason: {loan.rejectionReason || 'No rejection reason specified.'}
-                      </p>
-                    </div>
+                  <div className="bg-red-50/50 border border-red-200 p-5 mt-2">
+                    <div className="font-bold text-red-900 text-sm mb-1">Loan Application Rejected</div>
+                    <p className="text-xs font-medium text-red-700">
+                      Reason: {loan.rejectionReason || 'No rejection reason specified.'}
+                    </p>
                   </div>
                 )}
               </div>

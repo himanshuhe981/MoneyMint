@@ -6,7 +6,6 @@ import { useAuth } from '../lib/auth'
 import Navbar from '../components/Navbar'
 import StepIndicator from '../components/StepIndicator'
 import LoadingSpinner from '../components/LoadingSpinner'
-import styles from './layout.module.css'
 
 const STEPS = [
   'Personal Details',
@@ -31,7 +30,7 @@ export default function ApplyLayout({ children }: { children: React.ReactNode })
 
   if (isLoading || !user || user.role !== 'BORROWER') {
     return (
-      <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="flex items-center justify-center min-h-screen bg-[#fafafa]">
         <LoadingSpinner size={48} />
       </div>
     )
@@ -48,16 +47,17 @@ export default function ApplyLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className={styles.container}>
+    <div className="min-h-screen bg-[#fafafa] font-sans selection:bg-accent selection:text-black">
       <Navbar />
       
-      <div className={styles.stepperContainer}>
+      {/* pt-[72px] prevents the sticky Navbar from covering content */}
+      <div className="pt-[72px] bg-white border-b border-black/10 py-6">
         <div className="container">
           <StepIndicator steps={STEPS} currentStep={currentStep} />
         </div>
       </div>
 
-      <main className={styles.content}>
+      <main className="py-12">
         <div className="container container-narrow">
           {children}
         </div>

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useAuth } from './lib/auth'
 import Navbar from './components/Navbar'
 import LoadingSpinner from './components/LoadingSpinner'
@@ -9,440 +10,354 @@ import LoadingSpinner from './components/LoadingSpinner'
 interface MockLoan {
   id: string
   borrower: string
-  employment: string
   amount: number
   status: 'DISBURSED' | 'PENDING' | 'SANCTIONED' | 'CLOSED' | 'REJECTED'
-  rate: number
-  tenure: number
 }
 
 const INITIAL_MOCK_LOANS: MockLoan[] = [
-  { id: 'L-8941', borrower: 'Aditya Sharma', employment: 'SALARIED', amount: 120000, status: 'DISBURSED', rate: 10.5, tenure: 12 },
-  { id: 'L-8942', borrower: 'Pooja Patel', employment: 'SELF_EMPLOYED', amount: 350000, status: 'SANCTIONED', rate: 13.5, tenure: 24 },
-  { id: 'L-8943', borrower: 'Rohan Mehta', employment: 'SALARIED', amount: 75000, status: 'CLOSED', rate: 10.5, tenure: 6 },
-  { id: 'L-8944', borrower: 'Sneha Reddy', employment: 'SALARIED', amount: 500000, status: 'PENDING', rate: 10.5, tenure: 36 },
-  { id: 'L-8945', borrower: 'Vikram Singh', employment: 'UNEMPLOYED', amount: 150000, status: 'REJECTED', rate: 18.0, tenure: 18 },
-  { id: 'L-8946', borrower: 'Ananya Gupta', employment: 'SELF_EMPLOYED', amount: 200000, status: 'DISBURSED', rate: 13.5, tenure: 12 }
+  { id: 'L-8941', borrower: 'Aditya Sharma', amount: 120000, status: 'DISBURSED' },
+  { id: 'L-8942', borrower: 'Pooja Patel', amount: 350000, status: 'SANCTIONED' },
+  { id: 'L-8943', borrower: 'Rohan Mehta', amount: 75000, status: 'CLOSED' },
+  { id: 'L-8944', borrower: 'Sneha Reddy', amount: 500000, status: 'PENDING' },
+  { id: 'L-8945', borrower: 'Vikram Singh', amount: 250000, status: 'DISBURSED' },
+  { id: 'L-8946', borrower: 'Anita Desai', amount: 180000, status: 'SANCTIONED' },
+  { id: 'L-8947', borrower: 'Karan Kapoor', amount: 420000, status: 'PENDING' },
 ]
 
 export default function LandingPage() {
   const { user, isLoading } = useAuth()
-
-  // Calculator states
-  const [loanAmount, setLoanAmount] = useState<number>(150000)
-  const [tenure, setTenure] = useState<number>(12)
-  const [employmentMode, setEmploymentMode] = useState<'SALARIED' | 'SELF_EMPLOYED' | 'UNEMPLOYED'>('SALARIED')
-
-  // Live status ticker
+  const [loanAmount, setLoanAmount] = useState<number>(100000)
+  const [tenure, setTenure] = useState<number>(90)
+  const [employmentCategory, setEmploymentCategory] = useState<'SALARIED' | 'SELF_EMPLOYED'>('SALARIED')
   const [loans, setLoans] = useState<MockLoan[]>(INITIAL_MOCK_LOANS)
-  const [lastUpdated, setLastUpdated] = useState<string>('Just now')
 
-  // Simulation of live additions / status modifications
+  const interestRate = 12 // Fixed at 12% according to assignment
+  const simpleInterest = Math.round((loanAmount * interestRate * tenure) / (365 * 100))
+  const totalRepayment = loanAmount + simpleInterest
+
   useEffect(() => {
     const interval = setInterval(() => {
-      setLastUpdated('Updated just now')
-
-      setLoans((prevLoans) => {
-        // Randomly modify a status or amount of a loan
-        const next = [...prevLoans]
+      setLoans((prev) => {
+        const next = [...prev]
         const idx = Math.floor(Math.random() * next.length)
         const loan = { ...next[idx] } as MockLoan
-
-        if (loan.status === 'PENDING') {
-          loan.status = Math.random() > 0.4 ? 'SANCTIONED' : 'REJECTED'
-        } else if (loan.status === 'SANCTIONED') {
-          loan.status = 'DISBURSED'
-        } else if (loan.status === 'DISBURSED' && Math.random() > 0.8) {
-          loan.status = 'CLOSED'
-        } else {
+        if (loan.status === 'PENDING') loan.status = 'SANCTIONED'
+        else if (loan.status === 'SANCTIONED') loan.status = 'DISBURSED'
+        else if (loan.status === 'DISBURSED') loan.status = 'CLOSED'
+        else {
           loan.status = 'PENDING'
           loan.amount = Math.floor((Math.random() * 400000 + 50000) / 5000) * 5000
         }
-
         next[idx] = loan
         return next
       })
-
-      // Reset text after 2 seconds
-      setTimeout(() => {
-        setLastUpdated('Updated 30s ago')
-      }, 3000)
-    }, 8000)
-
+    }, 6000)
     return () => clearInterval(interval)
   }, [])
 
   if (isLoading) {
     return (
-      <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center', background: 'var(--color-bg)' }}>
+      <div className="flex items-center justify-center min-h-screen bg-white">
         <LoadingSpinner size={48} />
       </div>
     )
   }
 
-  // Calculate rate dynamically based on employment mode
-  const getRate = () => {
-    if (employmentMode === 'SALARIED') return 10.5
-    if (employmentMode === 'SELF_EMPLOYED') return 13.5
-    return 0 // Not eligible
-  }
-
-  const rate = getRate()
-  const isEligible = employmentMode !== 'UNEMPLOYED' && loanAmount >= 25000
-
-  // Calculate EMI: P * r * (1 + r)^n / ((1 + r)^n - 1)
-  const calculateEMI = () => {
-    if (!isEligible) return 0
-    const monthlyRate = rate / 12 / 100
-    const totalPayments = tenure
-    const emi = (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, totalPayments)) / (Math.pow(1 + monthlyRate, totalPayments) - 1)
-    return Math.round(emi)
-  }
-
-  const emi = calculateEMI()
-  const totalRepayment = emi * tenure
-
   return (
-    <div style={{ background: 'var(--color-bg)', minHeight: '100vh', color: 'var(--color-text)', display: 'flex', flexDirection: 'column' }}>
+    <div className="min-h-screen bg-white text-black font-sans selection:bg-accent selection:text-black overflow-x-hidden">
       <Navbar />
 
       {/* Hero Section */}
-      <section style={{ padding: 'var(--space-16) 0 var(--space-12)', position: 'relative', overflow: 'hidden' }}>
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 'var(--space-12)', alignItems: 'center' }}>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
-            <div className="text-uppercase-subtitle">LENDING PLATFORM</div>
-            <h1 className="text-serif" style={{ fontSize: 'var(--text-4xl)', fontWeight: 'var(--weight-light)', lineHeight: '1.1', letterSpacing: '-0.02em', color: 'var(--color-text)' }}>
-              Assurance for <br />
-              <span style={{ fontStyle: 'italic', fontWeight: 'var(--weight-normal)' }}>borrowers</span> who value speed and clarity.
-            </h1>
+      <section className="relative pt-32 pb-24 lg:pt-36 lg:pb-32 overflow-hidden border-b border-black/10 bg-white" id="estimator">
+        
+        {/* Subtle glowing orb */}
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-accent/10 rounded-full blur-[120px] pointer-events-none -z-10"></div>
+
+        <div className="container relative z-10">
+          <div className="grid lg:grid-cols-2 gap-20 items-center">
             
-            <p style={{ color: 'var(--color-text-secondary)', fontSize: '1.05rem', lineHeight: '1.7', maxWidth: '520px' }}>
-              MoneyMint delivers an instant automated eligibility engine, lightning-fast document uploading, and real-time ledger status updates inside a high-end, elegant portal.
-            </p>
+            {/* Left Content */}
+            <div className="flex flex-col items-start gap-10">
+              <div className="inline-flex items-center gap-3 px-5 py-2.5 border border-black text-xs font-bold tracking-widest uppercase bg-white shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+                <span className="w-2 h-2 rounded-none bg-accent animate-pulse"></span>
+                Institutional Capital Platform
+              </div>
+              
+              <h1 className="text-5xl lg:text-7xl font-serif tracking-tight leading-[1.1]">
+                Precision <br />
+                <span className="italic font-light text-black/70">Lending</span> <br />
+                Infrastructure.
+              </h1>
+              
+              <p className="text-lg text-text-secondary max-w-lg leading-relaxed font-medium">
+                MoneyMint powers the next generation of credit. Automated underwriting, live ledger tracking, and instant disbursements—designed for unparalleled financial scale.
+              </p>
 
-            <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center', marginTop: 'var(--space-2)' }}>
-              {user ? (
-                <Link href={user.role === 'BORROWER' ? '/apply' : '/dashboard'} className="btn btn-primary btn-lg">
-                  Go to Dashboard
+              <div className="flex items-center gap-6 mt-2">
+                <Link href={user ? (user.role === 'BORROWER' ? '/apply' : '/dashboard') : '/signup'} className="btn btn-primary text-sm px-8 py-3.5 rounded-none shadow-[4px_4px_0px_rgba(196,240,39,1)]">
+                  {user ? 'Get Started' : 'Apply Now'}
                 </Link>
-              ) : (
-                <>
-                  <Link href="/signup" className="btn btn-primary btn-lg">
-                    Apply for a Loan
-                  </Link>
-                  <Link href="/login" className="btn btn-ghost btn-lg">
-                    Sign in to Account
-                  </Link>
-                </>
-              )}
+                <Link href="#status" className="btn btn-ghost border border-black/20 hover:bg-[#fafafa] text-sm px-8 py-3.5 rounded-none">
+                  Live Feed
+                </Link>
+              </div>
+
+              <div className="flex gap-10 mt-6 border-t border-black/10 pt-6 w-full max-w-sm">
+                <div>
+                  <div className="text-2xl font-serif font-bold tracking-tight">₹78M+</div>
+                  <div className="text-[10px] font-bold tracking-widest uppercase text-text-secondary mt-1">Capital Disbursed</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-serif font-bold tracking-tight">50,000+</div>
+                  <div className="text-[10px] font-bold tracking-widest uppercase text-text-secondary mt-1">Active Users</div>
+                </div>
+              </div>
             </div>
 
-            <div style={{ display: 'flex', gap: 'var(--space-8)', marginTop: 'var(--space-6)', paddingTop: '0' }}>
-              <div>
-                <div className="text-serif" style={{ fontSize: '1.8rem', fontWeight: 'var(--weight-medium)' }}>99.8%</div>
-                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '4px' }}>Approval Cadence</div>
-              </div>
-              <div>
-                <div className="text-serif" style={{ fontSize: '1.8rem', fontWeight: 'var(--weight-medium)' }}>10 mins</div>
-                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '4px' }}>Disbursal Time</div>
-              </div>
-              <div>
-                <div className="text-serif" style={{ fontSize: '1.8rem', fontWeight: 'var(--weight-medium)' }}>100%</div>
-                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '4px' }}>Digital Process</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Floated Estimate Card widget */}
-          <div id="estimator" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-            <div className="card-luxury" style={{ padding: 'var(--space-8)', background: '#ffffff' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-6)' }}>
-                <span className="text-uppercase-subtitle" style={{ color: 'var(--color-text)' }}>Loan Calculator</span>
-                <span className="badge badge-passed">Rates from {getRate()}% APR</span>
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+            {/* Right Calculator Card */}
+            <div className="relative">
+              <div className="bg-white border border-black p-8 lg:p-10 shadow-[6px_6px_0px_rgba(0,0,0,1)] relative">
                 
-                {/* Employment selector */}
-                <div className="form-group">
-                  <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span>Employment Category</span>
-                    <span className="font-semibold" style={{ color: 'var(--color-text)' }}>
-                      {employmentMode === 'SALARIED' ? 'Salaried (10.5%)' : employmentMode === 'SELF_EMPLOYED' ? 'Self-Employed (13.5%)' : 'Unemployed'}
-                    </span>
-                  </label>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--space-2)', marginTop: '4px' }}>
-                    {(['SALARIED', 'SELF_EMPLOYED', 'UNEMPLOYED'] as const).map((mode) => (
-                      <button
-                        key={mode}
-                        type="button"
-                        onClick={() => setEmploymentMode(mode)}
-                        style={{
-                          padding: '8px 4px',
-                          borderRadius: 'var(--radius-md)',
-                          border: employmentMode === mode ? '1.5px solid var(--color-accent)' : '1px solid var(--color-border)',
-                          background: employmentMode === mode ? 'var(--color-accent-subtle)' : 'transparent',
-                          color: 'var(--color-text)',
-                          fontSize: '0.75rem',
-                          fontWeight: employmentMode === mode ? '600' : '400',
-                          cursor: 'pointer',
-                          transition: 'all var(--transition-fast)'
-                        }}
-                      >
-                        {mode.replace('_', ' ')}
-                      </button>
-                    ))}
+                <div className="flex justify-between items-center mb-8 border-b border-black/10 pb-4">
+                  <span className="text-xs font-bold tracking-widest uppercase">Loan Estimator</span>
+                  <span className="badge badge-passed text-[10px]">FIXED 12% APR</span>
+                </div>
+
+                {/* Employment Category */}
+                <div className="mb-6">
+                  <div className="flex justify-between items-end mb-3">
+                    <span className="text-xs font-medium text-text-secondary">Employment Category</span>
+                    <span className="text-xs font-bold">{employmentCategory === 'SALARIED' ? 'Salaried' : 'Self Employed'}</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button 
+                      onClick={() => setEmploymentCategory('SALARIED')}
+                      className={`py-2 text-[10px] font-bold tracking-widest uppercase transition-colors ${employmentCategory === 'SALARIED' ? 'border-2 border-black bg-[#fafafa] text-black' : 'border border-black/20 text-black/50 hover:border-black/40 hover:text-black'}`}
+                    >
+                      Salaried
+                    </button>
+                    <button 
+                      onClick={() => setEmploymentCategory('SELF_EMPLOYED')}
+                      className={`py-2 text-[10px] font-bold tracking-widest uppercase transition-colors ${employmentCategory === 'SELF_EMPLOYED' ? 'border-2 border-black bg-[#fafafa] text-black' : 'border border-black/20 text-black/50 hover:border-black/40 hover:text-black'}`}
+                    >
+                      Self Employed
+                    </button>
                   </div>
                 </div>
 
-                {/* Amount slider */}
-                <div className="form-group">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--text-sm)' }}>
-                    <span className="form-label">Requested Principal</span>
-                    <span className="font-semibold" style={{ fontSize: '1.05rem' }}>₹{loanAmount.toLocaleString('en-IN')}</span>
+                {/* Requested Principal */}
+                <div className="mb-6">
+                  <div className="flex justify-between items-end mb-4">
+                    <span className="text-xs font-medium text-text-secondary">Requested Principal</span>
+                    <span className="text-2xl font-serif font-bold">₹{loanAmount.toLocaleString('en-IN')}</span>
                   </div>
-                  <input
-                    type="range"
-                    min="25000"
-                    max="1000000"
-                    step="5000"
-                    value={loanAmount}
-                    onChange={(e) => setLoanAmount(Number(e.target.value))}
-                    style={{ marginTop: '8px' }}
-                  />
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--color-text-muted)', marginTop: '4px' }}>
-                    <span>₹25,000</span>
-                    <span>₹10,00,000</span>
-                  </div>
-                </div>
-
-                {/* Tenure Slider */}
-                <div className="form-group">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 'var(--text-sm)' }}>
-                    <span className="form-label">Duration</span>
-                    <span className="font-semibold" style={{ fontSize: '1.05rem' }}>{tenure} Months</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="3"
-                    max="36"
-                    step="3"
-                    value={tenure}
-                    onChange={(e) => setTenure(Number(e.target.value))}
-                    style={{ marginTop: '8px' }}
-                  />
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--color-text-muted)', marginTop: '4px' }}>
-                    <span>3 Months</span>
-                    <span>36 Months</span>
-                  </div>
-                </div>
-
-                <div style={{ borderTop: '1px solid var(--color-border-light)', paddingTop: 'var(--space-5)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
-                  <div>
-                    <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>Estimated EMI</span>
-                    <div className="text-serif" style={{ fontSize: '1.5rem', fontWeight: '600', color: isEligible ? 'var(--color-text)' : 'var(--color-danger)' }}>
-                      {isEligible ? `₹${emi.toLocaleString('en-IN')}` : 'Ineligible'}
-                    </div>
-                  </div>
-                  <div>
-                    <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>Total Payment</span>
-                    <div style={{ fontSize: '1.05rem', fontWeight: '500', marginTop: '4px' }}>
-                      {isEligible ? `₹${totalRepayment.toLocaleString('en-IN')}` : '—'}
+                  <div className="relative py-2">
+                    <input
+                      type="range"
+                      min="50000"
+                      max="500000"
+                      step="10000"
+                      value={loanAmount}
+                      onChange={(e) => setLoanAmount(Number(e.target.value))}
+                      className="w-full h-1 bg-black/10 appearance-none cursor-pointer outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-black [&::-webkit-slider-thumb]:rounded-none [&::-webkit-slider-thumb]:transition-transform hover:[&::-webkit-slider-thumb]:scale-125"
+                    />
+                    <div className="flex justify-between text-[10px] text-text-secondary font-bold tracking-widest uppercase mt-3">
+                      <span>₹50,000</span>
+                      <span>₹5,00,000</span>
                     </div>
                   </div>
                 </div>
 
-                {!isEligible && (
-                  <div className="alert alert-error" style={{ padding: '8px 12px', fontSize: '11px', borderRadius: 'var(--radius-md)' }}>
-                    Unemployed individuals are currently outside our credit check capability parameters.
+                {/* Duration */}
+                <div className="mb-8">
+                  <div className="flex justify-between items-end mb-4">
+                    <span className="text-xs font-medium text-text-secondary">Repayment Tenure</span>
+                    <span className="text-lg font-serif font-bold">{tenure} Days</span>
                   </div>
-                )}
+                  <div className="relative py-2">
+                    <input
+                      type="range"
+                      min="30"
+                      max="365"
+                      step="1"
+                      value={tenure}
+                      onChange={(e) => setTenure(Number(e.target.value))}
+                      className="w-full h-1 bg-black/10 appearance-none cursor-pointer outline-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-black [&::-webkit-slider-thumb]:rounded-none [&::-webkit-slider-thumb]:transition-transform hover:[&::-webkit-slider-thumb]:scale-125"
+                    />
+                    <div className="flex justify-between text-[10px] text-text-secondary font-bold tracking-widest uppercase mt-3">
+                      <span>30 Days</span>
+                      <span>365 Days</span>
+                    </div>
+                  </div>
+                </div>
 
-                <Link
-                  href={user ? '/apply' : '/signup'}
-                  className={`btn btn-primary btn-full ${!isEligible ? 'btn-ghost' : ''}`}
-                  style={{ pointerEvents: isEligible ? 'auto' : 'none', opacity: isEligible ? 1 : 0.4 }}
-                >
-                  Proceed to Application
-                </Link>
+                {/* Estimations */}
+                <div className="grid grid-cols-2 gap-4 mb-8 pt-6 border-t border-black/10">
+                  <div>
+                    <span className="text-[10px] font-medium text-text-secondary uppercase tracking-widest block mb-1">Calculated Interest</span>
+                    <span className="text-xl font-serif font-bold tracking-tight">₹{simpleInterest.toLocaleString('en-IN')}</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-medium text-text-secondary uppercase tracking-widest block mb-1">Total Payment</span>
+                    <span className="text-xl font-serif font-bold tracking-tight">₹{totalRepayment.toLocaleString('en-IN')}</span>
+                  </div>
+                </div>
+
+                <div className="border-t border-black/10 pt-6">
+                  <Link href={user ? '/apply' : '/signup'} className="btn btn-primary w-full py-4 text-xs rounded-none tracking-widest uppercase shadow-[4px_4px_0px_rgba(196,240,39,1)] hover:shadow-[6px_6px_0px_rgba(196,240,39,1)]">
+                    Proceed to Application
+                  </Link>
+                </div>
               </div>
             </div>
+            
           </div>
-
         </div>
       </section>
 
-      {/* Capabilities Section */}
-      <section id="capabilities" style={{ padding: 'var(--space-12) 0', background: 'var(--color-surface)' }}>
+      {/* Stats / Success Section */}
+      <section className="py-24 bg-white border-b border-black/10" id="platform">
         <div className="container">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-8)', marginBottom: 'var(--space-12)' }}>
-            <div style={{ maxWidth: '800px' }}>
-              <div className="text-uppercase-subtitle" style={{ marginBottom: 'var(--space-2)' }}>CAPABILITIES</div>
-              <h2 className="text-serif" style={{ fontSize: '2.25rem', fontWeight: 'var(--weight-light)', lineHeight: '1.2' }}>
-                A disciplined credit stack for borrowers and administrators.
-              </h2>
-              <p style={{ color: 'var(--color-text-secondary)', marginTop: 'var(--space-4)', fontSize: '1.05rem', lineHeight: '1.6' }}>
-                We manage the entire loan lifecycle digitally—from automated underwriting constraints (BRE check) to instantaneous salary parsing ledgers.
-              </p>
+          <div className="flex flex-col lg:flex-row justify-between items-start gap-12 mb-16">
+            <div className="max-w-xl">
+              <h2 className="text-4xl lg:text-5xl font-serif leading-tight">Institutional <br/> Capital Deployed —</h2>
+              <p className="text-text-secondary mt-4 font-medium">A robust track record of successful originations, reflecting our commitment to seamless execution and precise credit analysis.</p>
             </div>
+            <div className="text-7xl lg:text-8xl font-serif font-light tracking-tighter">
+              ₹78.2<span className="text-accent font-medium">M</span>
+            </div>
+          </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 'var(--space-6)' }}>
-              <div style={{ padding: 'var(--space-6)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)' }}>
-                <h3 className="font-semibold" style={{ fontSize: '1.25rem', marginBottom: '10px' }}>
-                  Automated BRE Checking
-                </h3>
-                <p style={{ fontSize: '0.95rem', color: 'var(--color-text-secondary)', lineHeight: '1.6' }}>
-                  System checks age ranges, valid PAN patterns, and minimum incomes instantly to verify credit limits.
-                </p>
-              </div>
-
-              <div style={{ padding: 'var(--space-6)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)' }}>
-                <h3 className="font-semibold" style={{ fontSize: '1.25rem', marginBottom: '10px' }}>
-                  Salary slip parser
-                </h3>
-                <p style={{ fontSize: '0.95rem', color: 'var(--color-text-secondary)', lineHeight: '1.6' }}>
-                  Upload a PDF salary slip, and our file validator logs records into the executive&apos;s ledger instantly.
-                </p>
-              </div>
-
-              <div style={{ padding: 'var(--space-6)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)' }}>
-                <h3 className="font-semibold" style={{ fontSize: '1.25rem', marginBottom: '10px' }}>
-                  Flexible configurations
-                </h3>
-                <p style={{ fontSize: '0.95rem', color: 'var(--color-text-secondary)', lineHeight: '1.6' }}>
-                  Adjust amount levels, month tenures, and review pre-generated schedules with total clarity.
-                </p>
-              </div>
-
-              <div style={{ padding: 'var(--space-6)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)' }}>
-                <h3 className="font-semibold" style={{ fontSize: '1.25rem', marginBottom: '10px' }}>
-                  Secure Disbursals
-                </h3>
-                <p style={{ fontSize: '0.95rem', color: 'var(--color-text-secondary)', lineHeight: '1.6' }}>
-                  Admin executives authorize loan status logs with a single click, triggering immediate ledger audits.
-                </p>
-              </div>
+          {/* Abstract Graph Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-0 border-y border-x border-black/10 h-64">
+            <div className="bg-white border-r border-black/10 p-6 flex flex-col justify-end relative overflow-hidden group">
+              <div className="absolute bottom-0 left-0 right-0 bg-black/5 h-1/4 transition-all duration-500 group-hover:h-1/3"></div>
+              <span className="relative z-10 font-bold text-xs tracking-widest uppercase text-text-secondary">FY 2021-22</span>
+              <span className="relative z-10 text-3xl font-serif mt-1">18.5M</span>
+            </div>
+            <div className="bg-white border-r border-black/10 p-6 flex flex-col justify-end relative overflow-hidden group">
+              <div className="absolute bottom-0 left-0 right-0 bg-black/10 h-2/5 transition-all duration-500 group-hover:h-1/2"></div>
+              <span className="relative z-10 font-bold text-xs tracking-widest uppercase text-text-secondary">FY 2022-23</span>
+              <span className="relative z-10 text-3xl font-serif mt-1">32.0M</span>
+            </div>
+            <div className="bg-white border-r border-black/10 p-6 flex flex-col justify-end relative overflow-hidden group">
+              <div className="absolute bottom-0 left-0 right-0 bg-black/20 h-3/5 transition-all duration-500 group-hover:h-2/3"></div>
+              <span className="relative z-10 font-bold text-xs tracking-widest uppercase text-text-secondary">FY 2023-24</span>
+              <span className="relative z-10 text-3xl font-serif mt-1">55.3M</span>
+            </div>
+            <div className="bg-black p-6 flex flex-col justify-end relative">
+              <div className="absolute top-0 left-0 w-full h-1 bg-accent"></div>
+              <span className="font-bold text-xs tracking-widest uppercase text-white/50">FY 2024-25</span>
+              <span className="text-4xl font-serif mt-1 text-white">78.6M</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* Live Tracked Status Section */}
-      <section id="status" style={{ padding: 'var(--space-12) 0' }}>
-        <div className="container">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 'var(--space-6)' }}>
+      <section className="py-24 bg-[#fafafa]" id="status">
+        <div className="container max-w-4xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-12 border-b border-black/10 pb-6">
             <div>
-              <span className="text-uppercase-subtitle">LIVE STREAMS</span>
-              <h2 className="text-serif" style={{ fontSize: '1.8rem', fontWeight: 'var(--weight-light)', marginTop: '4px' }}>
-                Global ledger activity index.
-              </h2>
+              <span className="text-[10px] font-bold tracking-widest uppercase text-text-secondary mb-2 block">Live Streams</span>
+              <h2 className="text-3xl font-serif">Global Activity Index</h2>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', fontSize: 'var(--text-xs)' }}>
-              <span style={{ width: '8px', height: '8px', background: '#22c55e', borderRadius: '50%', display: 'inline-block', animation: 'spin 2s linear infinite' }}></span>
-              <span className="font-medium">{loans.length} Active Trackers</span>
-              <span style={{ color: 'var(--color-text-muted)' }}>|</span>
-              <span style={{ color: 'var(--color-text-muted)' }}>{lastUpdated}</span>
+            <div className="flex items-center gap-3 bg-black px-4 py-2 text-white text-[10px] font-bold tracking-widest uppercase shadow-[2px_2px_0px_rgba(196,240,39,1)]">
+              <span className="w-1.5 h-1.5 bg-accent rounded-none animate-pulse"></span>
+              Feed Active
             </div>
           </div>
 
-          <div className="table-wrapper" style={{ boxShadow: 'none', border: 'none' }}>
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>LOAN ID</th>
-                  <th>APPLICANT</th>
-                  <th>EMPLOYMENT</th>
-                  <th>PRINCIPAL</th>
-                  <th>STATUS</th>
-                  <th>INTEREST RATE</th>
-                  <th>DURATION</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loans.map((loan) => (
-                  <tr key={loan.id} style={{ transition: 'background 0.3s ease' }}>
-                    <td className="font-semibold" style={{ color: 'var(--color-text)' }}>{loan.id}</td>
-                    <td>{loan.borrower}</td>
-                    <td>
-                      <span style={{ fontSize: '11px', fontWeight: '500' }}>{loan.employment}</span>
-                    </td>
-                    <td className="font-medium" style={{ color: 'var(--color-text)' }}>₹{loan.amount.toLocaleString('en-IN')}</td>
-                    <td>
-                      <span className={`badge badge-${loan.status.toLowerCase()}`}>
-                        {loan.status}
-                      </span>
-                    </td>
-                    <td>{loan.rate}% APR</td>
-                    <td>{loan.tenure} Months</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="flex flex-col border-l border-black/10 ml-4 pl-8 relative space-y-8">
+            <div className="absolute top-0 bottom-0 -left-px w-px bg-gradient-to-b from-accent to-transparent"></div>
+            
+            {loans.map((loan, idx) => (
+              <div key={loan.id} className="relative group hover:-translate-y-0.5 transition-transform">
+                {/* Node indicator */}
+                <div className="absolute -left-[37px] top-4 w-2 h-2 bg-black border border-white group-hover:bg-accent transition-colors"></div>
+                
+                <div className="bg-white border border-black/10 p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-[0_2px_10px_rgb(0,0,0,0.02)]">
+                  <div className="flex items-center gap-6">
+                    <div className="font-mono text-[10px] font-bold text-text-secondary tracking-widest bg-black/5 px-2 py-1">{loan.id}</div>
+                    <div className="text-xs font-bold uppercase tracking-widest text-text-main">{loan.borrower}</div>
+                  </div>
+                  
+                  <div className="flex items-center gap-8">
+                    <div className="font-serif text-xl font-bold">₹{loan.amount.toLocaleString('en-IN')}</div>
+                    <span className={`w-28 text-center text-[10px] font-bold tracking-widest uppercase py-1 border ${
+                      loan.status === 'DISBURSED' ? 'bg-black text-white border-black' :
+                      loan.status === 'SANCTIONED' ? 'bg-[#fafafa] text-black border-black/20' :
+                      loan.status === 'CLOSED' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-white text-text-secondary border-black/10'
+                    }`}>
+                      {loan.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Charcoal black call-to-action block */}
-      <section id="assurance" style={{ background: '#121212', color: '#ffffff', padding: 'var(--space-16) 0', borderTop: '1px solid #222222' }}>
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 'var(--space-12)', alignItems: 'center' }}>
-          <div>
-            <div className="text-uppercase-subtitle" style={{ color: '#888888', marginBottom: '8px' }}>RELIABILITY & COMPLIANCE</div>
-            <h2 className="text-serif" style={{ fontSize: '2.25rem', fontWeight: 'var(--weight-light)', color: '#ffffff', lineHeight: '1.2' }}>
-              Built for real underwriting, <br />not just mock application forms.
-            </h2>
-            <p style={{ color: '#aaaaaa', marginTop: 'var(--space-4)', fontSize: '0.95rem', lineHeight: '1.7', maxWidth: '540px' }}>
-              MoneyMint executes formal compliance layers behind the scenes. We log structural file indexes, prevent identity bypass, and verify salary metrics within bank guidelines.
+      {/* ── Footer ── */}
+      <footer className="bg-black text-white py-20 relative overflow-hidden">
+        <div className="container relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-16">
+            
+            {/* Brand Column */}
+            <div className="flex flex-col gap-6 lg:col-span-1">
+              <div className="flex items-center gap-2.5">
+                <Image src="/MoneyMintLogo.svg" alt="MoneyMint Logo" width={28} height={28} className="w-7 h-7 invert" />
+                <div className="flex flex-col items-start leading-none">
+                  <span className="font-brand text-[22px] font-semibold tracking-wide text-white">MONEYMINT</span>
+                </div>
+              </div>
+              <p className="text-sm font-medium text-white/50 leading-relaxed max-w-xs">
+                Next-generation automated lending infrastructure for institutional capital deployment and transparent borrower experiences.
+              </p>
+            </div>
+
+            {/* Links Columns */}
+            <div className="flex flex-col gap-4">
+              <h4 className="text-[10px] font-bold tracking-widest uppercase text-white/40 mb-2">Platform</h4>
+              <a href="#" className="text-sm font-medium text-white/70 hover:text-white transition-colors">Automated Underwriting</a>
+              <a href="#" className="text-sm font-medium text-white/70 hover:text-white transition-colors">Risk Assessment</a>
+              <a href="#" className="text-sm font-medium text-white/70 hover:text-white transition-colors">Disbursement API</a>
+              <a href="#" className="text-sm font-medium text-white/70 hover:text-white transition-colors">Live Ledger</a>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <h4 className="text-[10px] font-bold tracking-widest uppercase text-white/40 mb-2">Company</h4>
+              <a href="#" className="text-sm font-medium text-white/70 hover:text-white transition-colors">About Us</a>
+              <a href="#" className="text-sm font-medium text-white/70 hover:text-white transition-colors">Careers</a>
+              <a href="#" className="text-sm font-medium text-white/70 hover:text-white transition-colors">Press & Media</a>
+              <a href="#" className="text-sm font-medium text-white/70 hover:text-white transition-colors">Contact Support</a>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <h4 className="text-[10px] font-bold tracking-widest uppercase text-white/40 mb-2">Legal</h4>
+              <a href="#" className="text-sm font-medium text-white/70 hover:text-white transition-colors">Terms of Service</a>
+              <a href="#" className="text-sm font-medium text-white/70 hover:text-white transition-colors">Privacy Policy</a>
+              <a href="#" className="text-sm font-medium text-white/70 hover:text-white transition-colors">Regulatory Compliance</a>
+              <a href="#" className="text-sm font-medium text-white/70 hover:text-white transition-colors">Security Disclosure</a>
+            </div>
+
+          </div>
+
+          <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-xs font-medium text-white/40">
+              © {new Date().getFullYear()} MoneyMint Financial Technologies. All rights reserved.
             </p>
-          </div>
-
-          <div className="card" style={{ background: '#1c1c1c', border: '1px solid #333333', color: '#ffffff', padding: 'var(--space-8)' }}>
-            <span className="text-uppercase-subtitle" style={{ color: '#888888' }}>COMPLIANCE CHECKLIST</span>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 'var(--space-6) 0 0', display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-              <li style={{ display: 'flex', gap: '12px', alignItems: 'center', fontSize: '0.875rem' }}>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="8" cy="8" r="8" fill="#2e7d32" />
-                  <path d="M5 8l2 2 4-4" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-                <span>Automated PAN parsing & tax checking</span>
-              </li>
-              <li style={{ display: 'flex', gap: '12px', alignItems: 'center', fontSize: '0.875rem' }}>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="8" cy="8" r="8" fill="#2e7d32" />
-                  <path d="M5 8l2 2 4-4" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-                <span>Salary stub file format verification</span>
-              </li>
-              <li style={{ display: 'flex', gap: '12px', alignItems: 'center', fontSize: '0.875rem' }}>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="8" cy="8" r="8" fill="#2e7d32" />
-                  <path d="M5 8l2 2 4-4" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" />
-                </svg>
-                <span>Immutable ledgers locked upon executive sanction</span>
-              </li>
-            </ul>
-            <div style={{ marginTop: 'var(--space-6)', borderTop: '1px solid #333333', paddingTop: 'var(--space-6)' }}>
-              <Link href={user ? '/apply' : '/signup'} className="btn btn-primary btn-full" style={{ background: '#ffffff', color: '#000000' }}>
-                Get Started Securely
-              </Link>
+            <div className="flex items-center gap-6">
+              <a href="#" className="text-xs font-bold tracking-widest uppercase text-white/40 hover:text-white transition-colors">Twitter</a>
+              <a href="#" className="text-xs font-bold tracking-widest uppercase text-white/40 hover:text-white transition-colors">LinkedIn</a>
+              <a href="#" className="text-xs font-bold tracking-widest uppercase text-white/40 hover:text-white transition-colors">GitHub</a>
             </div>
           </div>
         </div>
-      </section>
 
-      {/* Elegant minimalist footer */}
-      <footer style={{ padding: 'var(--space-8) 0', borderTop: '1px solid var(--color-border)', fontSize: '0.75rem', color: 'var(--color-text-muted)', background: 'var(--color-surface)' }}>
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <span>© {new Date().getFullYear()} MoneyMint Technologies Inc. All rights reserved.</span>
-          </div>
-          <div style={{ display: 'flex', gap: 'var(--space-4)' }}>
-            <a href="#estimator" style={{ color: 'inherit' }}>Calculator</a>
-            <a href="#capabilities" style={{ color: 'inherit' }}>Capabilities</a>
-            <a href="#status" style={{ color: 'inherit' }}>Live Status</a>
-            <a href="/login" style={{ color: 'inherit' }}>Sign In</a>
-          </div>
-        </div>
+        {/* Decorative background element */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/[0.02] rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
       </footer>
     </div>
   )

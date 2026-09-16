@@ -122,49 +122,45 @@ export default function PersonalDetailsPage() {
     : 'Minimum required: ₹25,000'
 
   return (
-    <div className="animate-fade-in">
-      <div className="page-header">
-        <h1>Personal Details</h1>
-        <p>Complete your personal profile to run the eligibility verification check.</p>
+    <div className="animate-[fadeIn_0.3s_ease-out]">
+      <div className="mb-10 text-center">
+        <h1 className="text-3xl font-serif font-bold tracking-tight text-black mb-3">Personal Details</h1>
+        <p className="text-sm font-medium text-text-secondary">Complete your personal profile to run the eligibility verification check.</p>
       </div>
 
       {profile && profile.breStatus === 'FAILED' && (
-        <div className="alert alert-error mb-6">
-          <div>
-            <div className="font-semibold mb-2">Eligibility Check Failed:</div>
-            <ul style={{ paddingLeft: 'var(--space-4)', margin: 0 }}>
-              {profile.breErrors?.map((err, i) => (
-                <li key={i}>{err}</li>
-              ))}
-            </ul>
-            <div className="mt-2 text-xs">
-              Please review and update your information below to try again.
-            </div>
+        <div className="mb-8 p-5 bg-red-50/50 border border-red-200">
+          <div className="font-bold text-red-900 mb-2">Eligibility Check Failed:</div>
+          <ul className="list-disc pl-5 m-0 text-sm font-medium text-red-800">
+            {profile.breErrors?.map((err, i) => (
+              <li key={i}>{err}</li>
+            ))}
+          </ul>
+          <div className="mt-3 text-xs font-medium text-red-700">
+            Please review and update your information below to try again.
           </div>
         </div>
       )}
 
       {hasPassedBRE ? (
-        <div className="card flex flex-col gap-6">
-          <div className="alert alert-success">
-            <div>
-              <div className="font-semibold">Verification Passed</div>
-              <div>Your profile meets all initial lending eligibility criteria.</div>
-            </div>
+        <div className="card max-w-2xl mx-auto flex flex-col gap-8 shadow-[8px_8px_0px_rgba(0,0,0,1)]">
+          <div className="bg-green-50/50 border border-green-200 p-5">
+            <div className="font-bold text-green-900 text-sm mb-1">Verification Passed</div>
+            <div className="text-xs font-medium text-green-700">Your profile meets all initial lending eligibility criteria.</div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
+          <div className="grid grid-cols-2 gap-8">
             <div>
-              <div className="form-label text-muted">Full Name</div>
-              <div className="font-medium mt-1">{profile.fullName}</div>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-text-secondary mb-1">Full Name</div>
+              <div className="font-serif text-lg font-bold">{profile.fullName}</div>
             </div>
             <div>
-              <div className="form-label text-muted">PAN Card Number</div>
-              <div className="font-medium mt-1">{profile.pan}</div>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-text-secondary mb-1">PAN Card Number</div>
+              <div className="font-serif text-lg font-bold">{profile.pan}</div>
             </div>
             <div>
-              <div className="form-label text-muted">Date of Birth</div>
-              <div className="font-medium mt-1">
+              <div className="text-[10px] font-bold uppercase tracking-widest text-text-secondary mb-1">Date of Birth</div>
+              <div className="font-serif text-lg font-bold">
                 {new Date(profile.dateOfBirth).toLocaleDateString('en-IN', {
                   day: '2-digit',
                   month: 'long',
@@ -173,26 +169,26 @@ export default function PersonalDetailsPage() {
               </div>
             </div>
             <div>
-              <div className="form-label text-muted">Monthly Salary</div>
-              <div className="font-medium mt-1">
+              <div className="text-[10px] font-bold uppercase tracking-widest text-text-secondary mb-1">Monthly Salary</div>
+              <div className="font-serif text-lg font-bold">
                 ₹{profile.monthlySalary.toLocaleString('en-IN')}
               </div>
             </div>
             <div>
-              <div className="form-label text-muted">Employment Mode</div>
-              <div className="font-medium mt-1">{profile.employmentMode}</div>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-text-secondary mb-1">Employment Mode</div>
+              <div className="font-serif text-lg font-bold">{profile.employmentMode.replace('_', ' ')}</div>
             </div>
             <div>
-              <div className="form-label text-muted">BRE Verification</div>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-text-secondary mb-1">BRE Verification</div>
               <div className="mt-1">
-                <span className="badge badge-passed">PASSED</span>
+                <span className="badge badge-passed text-[10px]">PASSED</span>
               </div>
             </div>
           </div>
 
-          <div className="flex justify-end mt-4">
+          <div className="flex justify-end mt-4 pt-6 border-t border-black/10">
             <button
-              className="btn btn-primary"
+              className="btn btn-primary text-xs px-8 py-3 font-bold uppercase tracking-widest shadow-[4px_4px_0px_rgba(196,240,39,1)]"
               onClick={() => router.push('/apply/salary-slip')}
             >
               Continue to Salary Slip Upload
@@ -200,16 +196,16 @@ export default function PersonalDetailsPage() {
           </div>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="card flex flex-col gap-6">
+        <form onSubmit={handleSubmit} className="card max-w-2xl mx-auto flex flex-col gap-6 shadow-[8px_8px_0px_rgba(0,0,0,1)]">
 
-          {/* Employment mode comes first — determines what other fields show and BRE eligibility */}
-          <div className="form-group">
-            <label className="form-label" htmlFor="employment">
-              Employment Mode <span style={{ color: 'var(--color-danger)' }}>*</span>
+          {/* Employment mode */}
+          <div>
+            <label className="form-label flex gap-1" htmlFor="employment">
+              Employment Mode <span className="text-red-500">*</span>
             </label>
             <select
               id="employment"
-              className="input"
+              className="input rounded-none"
               value={employmentMode}
               onChange={(e) => {
                 setEmploymentMode(e.target.value as 'SALARIED' | 'SELF_EMPLOYED' | 'UNEMPLOYED')
@@ -224,32 +220,27 @@ export default function PersonalDetailsPage() {
               <option value="UNEMPLOYED">Unemployed</option>
             </select>
             {!hasPickedMode && (
-              <span className="form-hint">Select this first — it determines your eligibility</span>
+              <span className="form-hint text-[10px] uppercase tracking-widest font-bold">Select this first — it determines your eligibility</span>
             )}
           </div>
 
           {isUnemployed && (
-            <div
-              className="alert alert-error"
-              style={{ padding: 'var(--space-3) var(--space-4)' }}
-            >
-              <div>
-                <div className="font-semibold">Not Eligible</div>
-                <div className="text-xs mt-1">
-                  Unemployed applicants do not qualify for a loan. Please update your employment status if this is incorrect.
-                </div>
+            <div className="bg-red-50/50 border border-red-200 p-4">
+              <div className="font-bold text-red-900 text-sm">Not Eligible</div>
+              <div className="text-xs font-medium text-red-700 mt-1">
+                Unemployed applicants do not qualify for a loan. Please update your employment status if this is incorrect.
               </div>
             </div>
           )}
 
           {hasPickedMode && (
             <>
-              <div className="form-group">
+              <div>
                 <label className="form-label" htmlFor="fullName">Full Name (as on PAN)</label>
                 <input
                   id="fullName"
                   type="text"
-                  className="input"
+                  className="input rounded-none"
                   placeholder="e.g. Johnathan Doe"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
@@ -258,61 +249,60 @@ export default function PersonalDetailsPage() {
                 />
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
                   <label className="form-label" htmlFor="pan">PAN Card Number</label>
                   <input
                     id="pan"
                     type="text"
-                    className="input"
+                    className="input rounded-none uppercase"
                     placeholder="e.g. ABCDE1234F"
                     value={pan}
                     onChange={(e) => setPan(e.target.value)}
                     disabled={submitting}
-                    style={{ textTransform: 'uppercase' }}
                     required
                   />
-                  <span className="form-hint">Format: 5 letters, 4 digits, 1 letter</span>
+                  <span className="form-hint text-[10px] uppercase tracking-widest font-bold">Format: 5 letters, 4 digits, 1 letter</span>
                 </div>
 
-                <div className="form-group">
+                <div>
                   <label className="form-label" htmlFor="dob">Date of Birth</label>
                   <input
                     id="dob"
                     type="date"
-                    className="input"
+                    className="input rounded-none"
                     value={dateOfBirth}
                     onChange={(e) => setDateOfBirth(e.target.value)}
                     disabled={submitting}
                     required
                   />
-                  <span className="form-hint">Must be between 23 and 50 years old</span>
+                  <span className="form-hint text-[10px] uppercase tracking-widest font-bold">Must be between 23 and 50 years old</span>
                 </div>
               </div>
 
               {!isUnemployed && (
-                <div className="form-group">
+                <div>
                   <label className="form-label" htmlFor="salary">{salaryLabel}</label>
                   <input
                     id="salary"
                     type="number"
-                    className="input"
+                    className="input rounded-none"
                     placeholder="e.g. 35000"
                     value={monthlySalary}
                     onChange={(e) => setMonthlySalary(e.target.value)}
                     disabled={submitting}
                     required
                   />
-                  <span className="form-hint">{salaryHint}</span>
+                  <span className="form-hint text-[10px] uppercase tracking-widest font-bold">{salaryHint}</span>
                 </div>
               )}
             </>
           )}
 
-          <div className="flex justify-end mt-4">
+          <div className="flex justify-end mt-4 pt-6 border-t border-black/10">
             <button
               type="submit"
-              className="btn btn-primary"
+              className="btn btn-primary text-xs px-8 py-3 font-bold uppercase tracking-widest shadow-[4px_4px_0px_rgba(196,240,39,1)] hover:shadow-[6px_6px_0px_rgba(196,240,39,1)]"
               disabled={submitting || !hasPickedMode}
             >
               {submitting ? 'Verifying...' : 'Verify Eligibility'}
