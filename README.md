@@ -1,35 +1,37 @@
 
 # MoneyMint LMS
 
-Live Project Link: https://moneymint-lms-web.vercel.app/
+**Live Project:** _[Will be added after deployment]_
 
-https://github.com/user-attachments/assets/51696c35-2d22-498a-9761-2ea1d357df4a
+<!-- Demo video will be added here once recorded -->
+<!-- [![MoneyMint Demo](thumbnail.png)](YOUR_VIDEO_LINK_HERE) -->
 
 Seed script: `bun run src/db/seed.ts` from [apps/api](apps/api)
 
 Seeded credentials:
 
-- Admin: `admin@lms.com` / `admin123`
-- Sales: `sales@lms.com` / `sales123`
-- Sanction: `sanction@lms.com` / `sanction123`
-- Disbursement: `disbursement@lms.com` / `disbursement123`
-- Collection: `collection@lms.com` / `collection123`
+- Admin: `admin@moneymint.com` / `admin123`
+- Sales: `sales@moneymint.com` / `sales123`
+- Sanction: `sanction@moneymint.com` / `sanction123`
+- Disbursement: `disbursement@moneymint.com` / `disbursement123`
+- Collection: `collection@moneymint.com` / `collection123`
+- Borrower: `borrower@moneymint.com` / `borrower123`
 
 AWS salary slip upload architecture:
 
 ```mermaid
 flowchart LR
-	A[Borrower uploads salary slip in frontend] --> B[Frontend sends FormData to /api/borrower/salary-slip]
-	B --> C[Multer middleware checks file type and size]
-	C --> D[File stays in memory as a buffer]
+	A[Borrower uploads salary slip] --> B[Frontend sends FormData to /api/borrower/salary-slip]
+	B --> C[Multer checks file type and size]
+	C --> D[File kept in memory as a buffer]
 	D --> E[Backend creates S3 key: salary-slips/userId_timestamp.ext]
-	E --> F[PutObjectCommand uploads file to AWS S3]
-	F --> G[HeadObjectCommand confirms the upload]
-	G --> H[Backend saves the S3 URL in the borrower profile]
-	H --> I[Sanction team can open the salary slip from the dashboard]
+	E --> F[PutObjectCommand uploads to AWS S3]
+	F --> G[Pre-signed URL generated for the file]
+	G --> H[S3 key stored in MongoDB borrower profile]
+	H --> I[Sanction team gets a fresh signed URL on each dashboard fetch]
 ```
 
-In simple words, the file does not go directly to the database. It goes from the frontend to the backend, then the backend stores it in AWS S3 and saves only the file URL in MongoDB.
+In simple terms: the file never touches the database. It goes from the browser to the backend, gets stored in AWS S3, and only a reference key is saved in MongoDB. Pre-signed URLs are generated on demand so the file stays private.
 
 MoneyMint LMS is a monorepo loan management system with two main apps:
 
@@ -204,23 +206,20 @@ In [apps/api/src/controllers/borrowerController.ts](apps/api/src/controllers/bor
 - Read from memory as a buffer
 - Given a generated key like `salary-slips/<userId>_<timestamp>.<ext>`
 - Sent to AWS S3 with `PutObjectCommand`
-- Verified with `HeadObjectCommand`
+- A pre-signed URL is generated for viewing (valid 7 days)
 
 ### 4. The borrower profile is updated
 
-After upload, the backend creates a public S3 URL and saves it to the borrower profile.
+After upload, the backend generates a pre-signed S3 URL and saves the S3 key to the borrower profile. Pre-signed URLs are generated fresh on every profile fetch so the link never expires for active users.
 
 The response includes:
 
-- `salarySlipUrl`
-- `location`
-- `bucket`
-- `key`
-- `verified: true`
+- `salarySlipUrl` (a presigned HTTPS URL, valid for 7 days)
+- `key` (the S3 object key)
 
 ### 5. The frontend uses that URL later
 
-The sanction dashboard shows the salary slip link so executives can review the uploaded document before approving the loan.
+The sanction dashboard generates a fresh presigned URL on each load so executives can view the uploaded document before approving the loan. Pre-signed URLs expire after 7 days.
 
 ### S3 Configuration
 
@@ -264,7 +263,8 @@ These pages use the auth context in [apps/web/app/lib/auth.tsx](apps/web/app/lib
 
 What happens after login:
 
-- Borrowers go to `/apply`
+- Borrowers with existing loans go to `/apply/status` (My Loans)
+- Borrowers without loans go to `/apply` to start their application
 - Executives go to `/dashboard`
 
 ### Borrower Journey
